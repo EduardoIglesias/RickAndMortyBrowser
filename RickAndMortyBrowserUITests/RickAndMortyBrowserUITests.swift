@@ -1,6 +1,6 @@
 //
 //  RickAndMortyBrowserUITests.swift
-//  RickAndMortyBrowserUITests
+//  RickAndMortyBrowser
 //
 //  Created by Eduardo Iglesias Fernandez on 23/2/26.
 //
@@ -39,3 +39,4 @@ final class RickAndMortyBrowserUITests: XCTestCase {
         }
     }
 }
+
