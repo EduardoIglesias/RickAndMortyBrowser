@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-test:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install SwiftLint
+        run: brew install swiftlint
+
+      - name: SwiftLint
+        run: swiftlint --strict
+
+      - name: Build & Test
+        run: |
+          xcodebuild test \
+            -project RickAndMortyBrowser.xcodeproj \
+            -scheme RickAndMortyBrowser \
+            -destination "platform=iOS Simulator,name=iPhone 15" \
+            | xcpretty
