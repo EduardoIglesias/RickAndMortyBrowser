@@ -8,64 +8,64 @@
 import Foundation
 
 actor DefaultCharactersRepository: CharactersRepository {
+    private let remote: CharactersRemoteDataSource
     private let pageSize: Int
-    private let allCharacters: [RMCharacter]
 
-    init(pageSize: Int = 10, allCharacters: [RMCharacter] = DefaultCharactersRepository.makeStubCharacters()) {
+    private var currentFilter: String?
+    private var expectedUIPage: Int = 1
+
+    private var buffer: [RMCharacter] = []
+    private var nextRemotePage: Int? = 1
+
+    init(
+        remote: CharactersRemoteDataSource,
+        pageSize: Int = 10
+    ) {
+        self.remote = remote
         self.pageSize = pageSize
-        self.allCharacters = allCharacters
     }
 
     func fetchCharacters(page: Int, nameFilter: String?) async throws -> ([RMCharacter], RMPageInfo) {
-        try await Task.sleep(for: .milliseconds(120))
+        let normalized = normalize(nameFilter)
 
-        let filtered = filterCharacters(allCharacters, by: nameFilter)
-
-        let startIndex = max(0, (page - 1) * pageSize)
-        guard startIndex < filtered.count else {
-            return ([], RMPageInfo(nextPage: nil))
+        if page == 1 || normalized != currentFilter || page != expectedUIPage {
+            reset(for: normalized)
         }
 
-        let endIndex = min(filtered.count, startIndex + pageSize)
-        let slice = Array(filtered[startIndex..<endIndex])
-
-        let nextPage: Int?
-        if endIndex < filtered.count {
-            nextPage = page + 1
-        } else {
-            nextPage = nil
+        while buffer.count < pageSize, let remotePage = nextRemotePage {
+            do {
+                let dto = try await remote.fetchCharacters(page: remotePage, nameFilter: normalized)
+                let mapped = dto.results.map(CharacterMapper.map)
+                buffer.append(contentsOf: mapped)
+                nextRemotePage = CharacterMapper.nextPage(from: dto.info.next)
+            } catch let NetworkError.httpStatus(code, _) where code == 404 {
+                // La API devuelve 404 cuando no hay resultados para el filtro.
+                buffer = []
+                nextRemotePage = nil
+                break
+            }
         }
 
-        return (slice, RMPageInfo(nextPage: nextPage))
+        let count = min(pageSize, buffer.count)
+        let items = Array(buffer.prefix(count))
+        buffer.removeFirst(count)
+
+        let hasMore = !buffer.isEmpty || nextRemotePage != nil
+        let nextUIPage: Int? = hasMore ? (page + 1) : nil
+
+        expectedUIPage = page + 1
+        return (items, RMPageInfo(nextPage: nextUIPage))
     }
 
-    private func filterCharacters(_ characters: [RMCharacter], by nameFilter: String?) -> [RMCharacter] {
-        guard let nameFilter, !nameFilter.isEmpty else { return characters }
-
-        let query = nameFilter.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !query.isEmpty else { return characters }
-
-        return characters.filter { $0.name.range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) != nil }
+    private func reset(for filter: String?) {
+        currentFilter = filter
+        expectedUIPage = 1
+        buffer = []
+        nextRemotePage = 1
     }
 
-    private static func makeStubCharacters() -> [RMCharacter] {
-        let statuses = ["Alive", "Dead", "Unknown"]
-        let species = ["Human", "Alien", "Robot"]
-        let genders = ["Female", "Male", "Unknown"]
-        let origins = ["Earth (C-137)", "Citadel of Ricks", "Unknown"]
-        let locations = ["Earth", "Citadel", "Space", "Unknown"]
-
-        return (1...60).map { index in
-            RMCharacter(
-                id: index,
-                name: "Character \(index)",
-                status: statuses[index % statuses.count],
-                species: species[index % species.count],
-                gender: genders[index % genders.count],
-                imageURL: nil,
-                originName: origins[index % origins.count],
-                locationName: locations[index % locations.count]
-            )
-        }
+    private func normalize(_ value: String?) -> String? {
+        let trimmed = (value ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
     }
 }
