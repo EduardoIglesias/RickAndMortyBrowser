@@ -53,5 +53,5 @@ jobs:
           xcodebuild test \
             -project RickAndMortyBrowser.xcodeproj \
             -scheme RickAndMortyBrowser \
-            -destination "id=$SIMULATOR_UDID"
+            -destination "platform=iOS Simulator,name=Any iOS Simulator Device"
 
