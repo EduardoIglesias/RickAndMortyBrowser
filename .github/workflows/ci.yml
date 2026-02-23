@@ -17,41 +17,26 @@ jobs:
       - name: SwiftLint
         run: swiftlint --strict
 
-      - name: Pick destination from xcodebuild (iOS Simulator)
-        shell: bash
-        run: |
-          set -eo pipefail
-
-          echo "Available destinations:"
-          xcodebuild -showdestinations \
-            -project RickAndMortyBrowser.xcodeproj \
-            -scheme RickAndMortyBrowser
-
-          # Prefer iPhone; fallback to any iOS Simulator device
-          UDID=$(
-            xcodebuild -showdestinations \
-              -project RickAndMortyBrowser.xcodeproj \
-              -scheme RickAndMortyBrowser \
-            | awk -F'id:|,' '
-                /platform:iOS Simulator/ && /name:iPhone/ {gsub(/ /,"",$2); print $2; exit}
-                /platform:iOS Simulator/ {gsub(/ /,"",$2); print $2; exit}
-              '
-          )
-
-          if [ -z "$UDID" ]; then
-            echo "No iOS Simulator destination found for this scheme."
-            exit 1
-          fi
-
-          echo "SIMULATOR_UDID=$UDID" >> "$GITHUB_ENV"
-          echo "Using simulator UDID: $UDID"
-
       - name: Build & Test
         shell: bash
         run: |
           set -eo pipefail
+
+          echo "Available simulators:"
+          xcrun simctl list devices available
+
+          DEVICE_NAME="$(xcrun simctl list devices available \
+            | sed -n 's/^[[:space:]]*\(iPhone[^()]*\) (.*/\1/p' \
+            | head -n 1)"
+
+          if [ -z "$DEVICE_NAME" ]; then
+            echo "No iPhone Simulator found"
+            exit 1
+          fi
+
+          echo "Using simulator: $DEVICE_NAME"
+
           xcodebuild test \
             -project RickAndMortyBrowser.xcodeproj \
             -scheme RickAndMortyBrowser \
-            -destination "platform=iOS Simulator,name=Any iOS Simulator Device"
-
+            -destination "platform=iOS Simulator,OS=latest,name=$DEVICE_NAME"
