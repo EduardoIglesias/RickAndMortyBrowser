@@ -1,0 +1,20 @@
+disabled_rules:
+  - trailing_whitespace
+
+opt_in_rules:
+  - empty_count
+  - explicit_init
+  - force_unwrapping
+
+line_length:
+  warning: 140
+  error: 180
+
+identifier_name:
+  min_length: 2
+
+excluded:
+  - Carthage
+  - Pods
+  - .build
+  - DerivedData
