@@ -18,5 +18,3 @@ struct AppRootView: View {
 #Preview {
     AppRootView()
 }
-
-

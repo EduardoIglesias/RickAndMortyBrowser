@@ -8,10 +8,9 @@
 import XCTest
 
 final class RickAndMortyBrowserUITestsLaunchTests: XCTestCase {
-
-    override class var runsForEachTargetApplicationUIConfiguration: Bool {
-        true
-    }
+    // swiftlint:disable static_over_final_class
+    override class var runsForEachTargetApplicationUIConfiguration: Bool { true }
+    // swiftlint:enable static_over_final_class
 
     override func setUpWithError() throws {
         continueAfterFailure = false
@@ -31,4 +30,3 @@ final class RickAndMortyBrowserUITestsLaunchTests: XCTestCase {
         add(attachment)
     }
 }
-
