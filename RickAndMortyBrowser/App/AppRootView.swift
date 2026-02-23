@@ -8,9 +8,15 @@
 import SwiftUI
 
 struct AppRootView: View {
+    @StateObject private var viewModel: CharactersListViewModel
+
+    init(diContainer: AppDIContainer = AppDIContainer()) {
+        _viewModel = StateObject(wrappedValue: diContainer.makeCharactersListViewModel())
+    }
+
     var body: some View {
         NavigationStack {
-            CharactersListView()
+            CharactersListView(viewModel: viewModel)
         }
     }
 }

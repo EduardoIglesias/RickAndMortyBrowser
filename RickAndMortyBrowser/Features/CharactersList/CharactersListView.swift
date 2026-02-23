@@ -8,19 +8,49 @@
 import SwiftUI
 
 struct CharactersListView: View {
+    @ObservedObject var viewModel: CharactersListViewModel
+
     var body: some View {
         List {
-            NavigationLink("Rick Sanchez") {
-                CharacterDetailView(characterName: "Rick Sanchez")
+            if let message = viewModel.state.errorMessage {
+                Text(message)
+                    .foregroundStyle(.red)
             }
-            NavigationLink("Morty Smith") {
-                CharacterDetailView(characterName: "Morty Smith")
+
+            ForEach(viewModel.state.characters) { character in
+                NavigationLink {
+                    CharacterDetailView(characterName: character.name)
+                } label: {
+                    CharacterRowView(character: character)
+                }
+                .onAppear {
+                    Task {
+                        await viewModel.loadMoreIfNeeded(currentItem: character)
+                    }
+                }
+            }
+
+            if viewModel.state.isLoadingMore {
+                HStack {
+                    Spacer()
+                    ProgressView()
+                    Spacer()
+                }
             }
         }
         .navigationTitle("Characters")
+        .searchable(text: $viewModel.query, prompt: "Filter by name")
+        .onChange(of: viewModel.query) { _, newValue in
+            viewModel.onQueryChanged(newValue)
+        }
+        .overlay {
+            if viewModel.state.isLoading && viewModel.state.characters.isEmpty {
+                ProgressView()
+            }
+        }
+        .task {
+            await viewModel.loadInitialIfNeeded()
+        }
     }
 }
 
-#Preview {
-    NavigationStack { CharactersListView() }
-}
