@@ -17,16 +17,29 @@ jobs:
       - name: SwiftLint
         run: swiftlint --strict
 
-      - name: Pick iPhone Simulator (UDID)
+      - name: Pick destination from xcodebuild (iOS Simulator)
         shell: bash
         run: |
           set -eo pipefail
-          echo "Listing available simulators..."
-          xcrun simctl list devices available
 
-          UDID=$(xcrun simctl list devices available | awk -F'[()]' '/iPhone/ {print $2; exit}')
+          echo "Available destinations:"
+          xcodebuild -showdestinations \
+            -project RickAndMortyBrowser.xcodeproj \
+            -scheme RickAndMortyBrowser
+
+          # Prefer iPhone; fallback to any iOS Simulator device
+          UDID=$(
+            xcodebuild -showdestinations \
+              -project RickAndMortyBrowser.xcodeproj \
+              -scheme RickAndMortyBrowser \
+            | awk -F'id:|,' '
+                /platform:iOS Simulator/ && /name:iPhone/ {gsub(/ /,"",$2); print $2; exit}
+                /platform:iOS Simulator/ {gsub(/ /,"",$2); print $2; exit}
+              '
+          )
+
           if [ -z "$UDID" ]; then
-            echo "No available iPhone Simulator found"
+            echo "No iOS Simulator destination found for this scheme."
             exit 1
           fi
 
@@ -41,3 +54,4 @@ jobs:
             -project RickAndMortyBrowser.xcodeproj \
             -scheme RickAndMortyBrowser \
             -destination "id=$SIMULATOR_UDID"
+
