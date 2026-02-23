@@ -53,4 +53,3 @@ struct CharactersListView: View {
         }
     }
 }
-

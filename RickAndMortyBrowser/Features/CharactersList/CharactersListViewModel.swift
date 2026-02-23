@@ -90,4 +90,3 @@ final class CharactersListViewModel: ObservableObject {
         return trimmed.isEmpty ? nil : trimmed
     }
 }
-
