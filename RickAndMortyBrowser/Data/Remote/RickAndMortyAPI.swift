@@ -25,4 +25,8 @@ enum RickAndMortyAPI {
 
         return Endpoint(baseURL: baseURL, path: "character", queryItems: items)
     }
+
+    static func character(id: Int) -> Endpoint {
+        Endpoint(baseURL: baseURL, path: "character/\(id)")
+    }
 }

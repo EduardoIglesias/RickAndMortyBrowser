@@ -17,6 +17,8 @@ actor DefaultCharactersRepository: CharactersRepository {
     private var buffer: [RMCharacter] = []
     private var nextRemotePage: Int? = 1
 
+    private var characterCache: [Int: RMCharacter] = [:]
+
     init(
         remote: CharactersRemoteDataSource,
         pageSize: Int = 10
@@ -35,9 +37,9 @@ actor DefaultCharactersRepository: CharactersRepository {
         while buffer.count < pageSize, let remotePage = nextRemotePage {
             do {
                 let dto = try await remote.fetchCharacters(page: remotePage, nameFilter: normalized)
-                let mapped = dto.results.map(CharacterMapper.map)
+                let mapped: [RMCharacter] = await MainActor.run { dto.results.map { CharacterMapper.map($0) } }
                 buffer.append(contentsOf: mapped)
-                nextRemotePage = CharacterMapper.nextPage(from: dto.info.next)
+                nextRemotePage = await MainActor.run { CharacterMapper.nextPage(from: dto.info.next) }
             } catch let NetworkError.httpStatus(code, _) where code == 404 {
                 // La API devuelve 404 cuando no hay resultados para el filtro.
                 buffer = []
@@ -57,6 +59,15 @@ actor DefaultCharactersRepository: CharactersRepository {
         return (items, RMPageInfo(nextPage: nextUIPage))
     }
 
+    func fetchCharacter(id: Int) async throws -> RMCharacter {
+        if let cached = characterCache[id] { return cached }
+
+        let dto = try await remote.fetchCharacter(id: id)
+        let mapped: RMCharacter = await MainActor.run { CharacterMapper.map(dto) }
+        characterCache[id] = mapped
+        return mapped
+    }
+
     private func reset(for filter: String?) {
         currentFilter = filter
         expectedUIPage = 1
@@ -69,3 +80,4 @@ actor DefaultCharactersRepository: CharactersRepository {
         return trimmed.isEmpty ? nil : trimmed
     }
 }
+

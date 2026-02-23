@@ -9,9 +9,11 @@ import SwiftUI
 
 @main
 struct RickAndMortyBrowserApp: App {
+    private let diContainer = AppDIContainer()
+
     var body: some Scene {
         WindowGroup {
-            AppRootView()
+            AppRootView(diContainer: diContainer)
         }
     }
 }

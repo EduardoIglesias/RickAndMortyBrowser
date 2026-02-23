@@ -9,6 +9,7 @@ import Foundation
 
 protocol CharactersRemoteDataSource: Sendable {
     func fetchCharacters(page: Int, nameFilter: String?) async throws -> CharactersResponseDTO
+    func fetchCharacter(id: Int) async throws -> CharacterDTO
 }
 
 struct DefaultCharactersRemoteDataSource: CharactersRemoteDataSource {
@@ -20,6 +21,15 @@ struct DefaultCharactersRemoteDataSource: CharactersRemoteDataSource {
 
     func fetchCharacters(page: Int, nameFilter: String?) async throws -> CharactersResponseDTO {
         let endpoint = RickAndMortyAPI.characters(page: page, name: nameFilter)
-        return try await client.request(endpoint, as: CharactersResponseDTO.self)
+        let dto: CharactersResponseDTO = try await client.request(endpoint)
+        return dto
+    }
+
+    func fetchCharacter(id: Int) async throws -> CharacterDTO {
+        let endpoint = RickAndMortyAPI.character(id: id)
+        let dto: CharacterDTO = try await client.request(endpoint)
+        return dto
     }
 }
+
+

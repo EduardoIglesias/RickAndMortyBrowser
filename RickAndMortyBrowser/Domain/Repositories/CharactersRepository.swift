@@ -9,4 +9,6 @@ import Foundation
 
 protocol CharactersRepository: Sendable {
     func fetchCharacters(page: Int, nameFilter: String?) async throws -> ([RMCharacter], RMPageInfo)
+
+    func fetchCharacter(id: Int) async throws -> RMCharacter
 }

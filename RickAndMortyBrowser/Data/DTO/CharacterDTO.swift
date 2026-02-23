@@ -7,8 +7,8 @@
 
 import Foundation
 
-struct CharacterDTO: Decodable {
-    struct NamedRefDTO: Decodable {
+struct CharacterDTO: Decodable, Sendable {
+    struct NamedRefDTO: Decodable, Sendable {
         let name: String
     }
 

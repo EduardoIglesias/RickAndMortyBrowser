@@ -7,11 +7,11 @@
 
 import Foundation
 
-struct CharactersResponseDTO: Decodable {
+struct CharactersResponseDTO: Decodable, Sendable {
     let info: InfoDTO
     let results: [CharacterDTO]
 }
 
-struct InfoDTO: Decodable {
+struct InfoDTO: Decodable, Sendable {
     let next: String?
 }

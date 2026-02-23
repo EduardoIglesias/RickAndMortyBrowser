@@ -12,44 +12,21 @@ struct CharactersListView: View {
 
     var body: some View {
         List {
-            if let message = viewModel.state.errorMessage {
-                Text(message)
-                    .foregroundStyle(.red)
-            }
-
             ForEach(viewModel.state.characters) { character in
-                NavigationLink {
-                    CharacterDetailView(characterName: character.name)
-                } label: {
+                NavigationLink(value: AppRoute.characterDetail(character.id)) {
                     CharacterRowView(character: character)
                 }
                 .onAppear {
-                    Task {
-                        await viewModel.loadMoreIfNeeded(currentItem: character)
-                    }
-                }
-            }
-
-            if viewModel.state.isLoadingMore {
-                HStack {
-                    Spacer()
-                    ProgressView()
-                    Spacer()
+                    Task { await viewModel.loadMoreIfNeeded(currentItem: character) }
                 }
             }
         }
         .navigationTitle("Characters")
         .searchable(text: $viewModel.query, prompt: "Filter by name")
-        .onChange(of: viewModel.query) { _, newValue in
+        .onChange(of: viewModel.query) { oldValue, newValue in
+            guard oldValue != newValue else { return }
             viewModel.onQueryChanged(newValue)
         }
-        .overlay {
-            if viewModel.state.isLoading && viewModel.state.characters.isEmpty {
-                ProgressView()
-            }
-        }
-        .task {
-            await viewModel.loadInitialIfNeeded()
-        }
+        .task { await viewModel.loadInitialIfNeeded() }
     }
 }

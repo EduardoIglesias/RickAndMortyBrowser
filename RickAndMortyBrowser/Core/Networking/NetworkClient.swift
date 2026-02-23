@@ -8,24 +8,26 @@
 import Foundation
 
 protocol NetworkClient: Sendable {
-    func request<T: Decodable>(_ endpoint: Endpoint, as type: T.Type) async throws -> T
+    func request<T: Decodable>(_ endpoint: Endpoint) async throws -> T
 }
 
 struct DefaultNetworkClient: NetworkClient {
     private let decoder: JSONDecoder
+    private let session: URLSession
 
-    init(decoder: JSONDecoder = JSONDecoder()) {
+    init(session: URLSession = .shared, decoder: JSONDecoder = JSONDecoder()) {
+        self.session = session
         self.decoder = decoder
     }
 
-    func request<T: Decodable>(_ endpoint: Endpoint, as type: T.Type) async throws -> T {
+    func request<T: Decodable>(_ endpoint: Endpoint) async throws -> T {
         let request = try endpoint.makeURLRequest()
 
         let data: Data
         let response: URLResponse
 
         do {
-            (data, response) = try await URLSession.shared.data(for: request)
+            (data, response) = try await session.data(for: request)
         } catch {
             throw NetworkError.transportError(error.localizedDescription)
         }
