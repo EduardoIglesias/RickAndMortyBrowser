@@ -22,5 +22,4 @@ jobs:
           xcodebuild test \
             -project RickAndMortyBrowser.xcodeproj \
             -scheme RickAndMortyBrowser \
-            -destination "platform=iOS Simulator,name=iPhone 15" \
-            | xcpretty
+            -destination "platform=iOS Simulator,OS=latest,name=iPhone 15"
