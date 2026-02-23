@@ -19,6 +19,7 @@ jobs:
 
       - name: Build & Test
         run: |
+          set -eo pipefail
           xcodebuild test \
             -project RickAndMortyBrowser.xcodeproj \
             -scheme RickAndMortyBrowser \
