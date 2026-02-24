@@ -113,4 +113,5 @@ iOS caches launch screen snapshots:
 - Simulator: Device → Shut Down / Boot (or Erase All Content and Settings)
 
 ## API
-Data source: https://rickandmortyapi.com/
+- Data source: https://rickandmortyapi.com/
+- Documentation: https://rickandmortyapi.com/documentation#rest
