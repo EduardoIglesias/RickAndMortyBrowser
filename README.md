@@ -32,8 +32,8 @@ Optional:
 
 ## Run tests
 
-- Unit tests: **⌘U**
-- UI tests: included in `RickAndMortyBrowserUITests`
+- Unit tests: **⌘U** (Developed using Testing)
+- UI tests: included in `RickAndMortyBrowserUITests` (Developed using XCTest)
 
 ## SwiftLint
 
