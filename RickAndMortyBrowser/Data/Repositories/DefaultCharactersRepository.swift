@@ -38,6 +38,12 @@ actor DefaultCharactersRepository: CharactersRepository {
             do {
                 let dto = try await remote.fetchCharacters(page: remotePage, nameFilter: normalized)
                 let mapped: [RMCharacter] = await MainActor.run { dto.results.map { CharacterMapper.map($0) } }
+
+                // cachea lo que viene del listado
+                for item in mapped {
+                    characterCache[item.id] = item
+                }
+
                 buffer.append(contentsOf: mapped)
                 nextRemotePage = await MainActor.run { CharacterMapper.nextPage(from: dto.info.next) }
             } catch let NetworkError.httpStatus(code, _) where code == 404 {
