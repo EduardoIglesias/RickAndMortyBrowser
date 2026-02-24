@@ -71,10 +71,16 @@ final class CharactersListViewModel: ObservableObject {
             let (items, info) = try await fetchCharactersPageUseCase.execute(page: page, nameFilter: filter)
 
             if isLoadMore {
-                state.characters.append(contentsOf: items)
-                await ImagePipeline.shared.prefetch(items.compactMap(\.imageURL), retries: 1)
+                // Dedup por id para evitar duplicados (y warnings con matchedGeometry)
+                let existingIDs = Set(state.characters.map(\.id))
+                let newItems = items.filter { !existingIDs.contains($0.id) }
+
+                state.characters.append(contentsOf: newItems)
+                await ImagePipeline.shared.prefetch(newItems.compactMap(\.imageURL), retries: 1)
             } else {
-                state.characters = items
+                // Por seguridad: dedup también en la primera carga
+                state.characters = Self.dedupByID(items)
+                await ImagePipeline.shared.prefetch(state.characters.compactMap(\.imageURL), retries: 1)
             }
 
             nextPage = info.nextPage
@@ -89,5 +95,10 @@ final class CharactersListViewModel: ObservableObject {
     private func normalizedQuery(from raw: String) -> String? {
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? nil : trimmed
+    }
+
+    private static func dedupByID(_ items: [RMCharacter]) -> [RMCharacter] {
+        var seen = Set<Int>()
+        return items.filter { seen.insert($0.id).inserted }
     }
 }

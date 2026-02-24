@@ -68,6 +68,7 @@ struct CharactersListViewModelTests {
         #expect(sut.state.characters.map(\.id) == Array(101...110))
         let received = await repo.receivedCalls()
         #expect(received.count == 1)
+        #expect(received.first?.page == 1)
         #expect(received.first?.filter == "Rick")
     }
 

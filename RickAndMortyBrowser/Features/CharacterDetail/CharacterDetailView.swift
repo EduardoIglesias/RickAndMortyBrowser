@@ -9,11 +9,15 @@ import SwiftUI
 
 struct CharacterDetailView: View {
     @ObservedObject var viewModel: CharacterDetailViewModel
+    let characterID: Int
+
+    @State private var contentAppeared = false
 
     var body: some View {
         Group {
             if viewModel.state.isLoading && viewModel.state.character == nil {
                 ProgressView()
+                    .onAppear { contentAppeared = false }
             } else if let message = viewModel.state.errorMessage {
                 VStack(spacing: 12) {
                     Text(message)
@@ -46,9 +50,12 @@ struct CharacterDetailView: View {
                         .padding(.horizontal)
                         .padding(.bottom, 24)
                     }
-                    .transition(.opacity.combined(with: .move(edge: .bottom)))
-                    .animation(.smooth(duration: 0.25), value: viewModel.state.character?.id)
                 }
+                .opacity(contentAppeared ? 1 : 0)
+                .scaleEffect(contentAppeared ? 1 : 0.96, anchor: .top)
+                .onAppear { contentAppeared = true }
+                .onChange(of: character.id) { _, _ in contentAppeared = true }
+                .animation(.smooth(duration: 0.25), value: contentAppeared)
             } else {
                 Text("No data.")
                     .foregroundStyle(.secondary)
@@ -135,7 +142,6 @@ struct CharacterDetailView: View {
 
     private func labeledRow(title: String, value: String, leadingDotColor: Color? = nil) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 10) {
-            // Fixed leading slot for alignment across rows
             Group {
                 if let leadingDotColor {
                     Circle()
@@ -154,7 +160,6 @@ struct CharacterDetailView: View {
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
                 .truncationMode(.tail)
-                // not fixed; keeps things left-aligned and SE-friendly
                 .frame(minWidth: 90, idealWidth: 120, maxWidth: 140, alignment: .leading)
 
             Text(value)
@@ -212,8 +217,6 @@ struct CharacterDetailView: View {
         }
     }
 }
-
-// MARK: - Card style
 
 private extension View {
     func cardStyle() -> some View {

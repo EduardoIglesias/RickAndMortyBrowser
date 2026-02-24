@@ -53,9 +53,9 @@ struct CharactersListView: View {
                         .frame(maxWidth: .infinity, alignment: .leading) // hace que el label ocupe toda la fila
                         .contentShape(Rectangle())                       // toda la fila es tappable
                 }
-                .buttonStyle(.plain)
-                .transaction { transaction in
-                    transaction.animation = .smooth(duration: 0.25)
+                .buttonStyle(PressableRowStyle())
+                .transaction { t in
+                    t.animation = .smooth(duration: 0.25)
                 }
                 .onAppear {
                     Task { await viewModel.loadMoreIfNeeded(currentItem: character) }
