@@ -57,7 +57,7 @@ struct CharacterDetailView: View {
                     .scaleEffect(contentAppeared ? 1 : 0.96, anchor: .top)
                     .onAppear { contentAppeared = true }
                     .onChange(of: character.id) { _, _ in contentAppeared = true }
-                    .animation(.smooth(duration: 0.25), value: contentAppeared)
+                    .animation(.spring(response: 0.55, dampingFraction: 0.9), value: contentAppeared)
                 } else {
                     Text("No data.")
                         .foregroundStyle(.secondary)
