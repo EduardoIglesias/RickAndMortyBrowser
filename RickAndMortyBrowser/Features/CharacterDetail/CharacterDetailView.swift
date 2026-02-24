@@ -14,51 +14,54 @@ struct CharacterDetailView: View {
     @State private var contentAppeared = false
 
     var body: some View {
-        Group {
-            if viewModel.state.isLoading && viewModel.state.character == nil {
-                ProgressView()
-                    .onAppear { contentAppeared = false }
-            } else if let message = viewModel.state.errorMessage {
-                VStack(spacing: 12) {
-                    Text(message)
-                        .foregroundStyle(.red)
-                        .font(.footnote)
-                        .multilineTextAlignment(.center)
-
-                    Button("Retry") {
-                        Task { await viewModel.reload() }
-                    }
-                    .buttonStyle(.borderedProminent)
-                }
-                .padding()
-            } else if let character = viewModel.state.character {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 16) {
-                        header(for: character)
-
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text("Overview")
-                                .font(.headline)
-
-                            overviewCard(for: character)
-
-                            Text("Locations")
-                                .font(.headline)
-
-                            locationsCard(for: character)
+        ZStack {
+                AppBackgroundView()
+            Group {
+                if viewModel.state.isLoading && viewModel.state.character == nil {
+                    ProgressView()
+                        .onAppear { contentAppeared = false }
+                } else if let message = viewModel.state.errorMessage {
+                    VStack(spacing: 12) {
+                        Text(message)
+                            .foregroundStyle(.red)
+                            .font(.footnote)
+                            .multilineTextAlignment(.center)
+                        
+                        Button("Retry") {
+                            Task { await viewModel.reload() }
                         }
-                        .padding(.horizontal)
-                        .padding(.bottom, 24)
+                        .buttonStyle(.borderedProminent)
                     }
+                    .padding()
+                } else if let character = viewModel.state.character {
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 16) {
+                            header(for: character)
+                            
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text("Overview")
+                                    .font(.headline)
+                                
+                                overviewCard(for: character)
+                                
+                                Text("Locations")
+                                    .font(.headline)
+                                
+                                locationsCard(for: character)
+                            }
+                            .padding(.horizontal)
+                            .padding(.bottom, 24)
+                        }
+                    }
+                    .opacity(contentAppeared ? 1 : 0)
+                    .scaleEffect(contentAppeared ? 1 : 0.96, anchor: .top)
+                    .onAppear { contentAppeared = true }
+                    .onChange(of: character.id) { _, _ in contentAppeared = true }
+                    .animation(.smooth(duration: 0.25), value: contentAppeared)
+                } else {
+                    Text("No data.")
+                        .foregroundStyle(.secondary)
                 }
-                .opacity(contentAppeared ? 1 : 0)
-                .scaleEffect(contentAppeared ? 1 : 0.96, anchor: .top)
-                .onAppear { contentAppeared = true }
-                .onChange(of: character.id) { _, _ in contentAppeared = true }
-                .animation(.smooth(duration: 0.25), value: contentAppeared)
-            } else {
-                Text("No data.")
-                    .foregroundStyle(.secondary)
             }
         }
         .navigationTitle("Character")

@@ -17,6 +17,7 @@ final class CharactersListViewModel: ObservableObject {
     private var nextPage: Int? = 1
     private var hasLoadedOnce: Bool = false
     private var searchTask: Task<Void, Never>?
+    private var lastLoadMoreTriggerID: Int?
 
     init(fetchCharactersPageUseCase: FetchCharactersPageUseCase) {
         self.fetchCharactersPageUseCase = fetchCharactersPageUseCase
@@ -42,12 +43,15 @@ final class CharactersListViewModel: ObservableObject {
         state.errorMessage = nil
         state.canLoadMore = true
         state.characters = []
-
+        lastLoadMoreTriggerID = nil
         await loadNextPage(isLoadMore: false)
     }
 
     func loadMoreIfNeeded(currentItem: RMCharacter) async {
         guard currentItem.id == state.characters.last?.id else { return }
+        guard lastLoadMoreTriggerID != currentItem.id else { return } // evita repetición
+        lastLoadMoreTriggerID = currentItem.id
+
         await loadNextPage(isLoadMore: true)
     }
 

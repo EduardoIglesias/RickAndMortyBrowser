@@ -9,7 +9,7 @@ import SwiftUI
 
 struct CharactersListView: View {
     @ObservedObject var viewModel: CharactersListViewModel
-    @Environment(\.diContainer) private var diContainer
+    let onSelectCharacter: (Int) -> Void
 
     @State private var isSearchPresented = false
 
@@ -34,6 +34,7 @@ struct CharactersListView: View {
                     Image(systemName: "sparkles")
                         .font(.title2)
                         .foregroundStyle(.secondary)
+
                     Text("No results in this dimension 👽")
                         .font(.headline)
 
@@ -48,50 +49,73 @@ struct CharactersListView: View {
             }
 
             ForEach(viewModel.state.characters) { character in
-                NavigationLink(value: AppRoute.characterDetail(character.id)) {
-                    CharacterRowView(character: character)
-                        .frame(maxWidth: .infinity, alignment: .leading) // hace que el label ocupe toda la fila
-                        .contentShape(Rectangle())                       // toda la fila es tappable
+                let isLast = character.id == viewModel.state.characters.last?.id
+
+                Button {
+                    onSelectCharacter(character.id)
+                } label: {
+                    VStack(spacing: 0) {
+                        HStack(spacing: 12) {
+                            CharacterRowView(character: character)
+
+                            Image(systemName: "chevron.right")
+                                .font(.footnote.weight(.semibold))
+                                .foregroundStyle(.tertiary)
+                                .accessibilityHidden(true)
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 10)
+
+                        if !isLast {
+                            Divider()
+                                .overlay(Color.primary.opacity(0.14))
+                                .padding(.leading, 80)
+                                .padding(.trailing, 12)
+                        }
+                    }
+                    .background(.background.opacity(0.95)) // card opaca
+                    .padding(.horizontal, 16)              // aquí se ven los laterales
+                    .contentShape(Rectangle())
                 }
-                .buttonStyle(PressableRowStyle())
-                .transaction { t in
-                    t.animation = .smooth(duration: 0.25)
-                }
-                .onAppear {
-                    Task { await viewModel.loadMoreIfNeeded(currentItem: character) }
-                }
+                .buttonStyle(.plain)
+                .onAppear { Task { await viewModel.loadMoreIfNeeded(currentItem: character) } }
+                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)           // clave: deja ver el fondo por los lados
             }
 
             if viewModel.state.isLoadingMore {
                 HStack {
                     Spacer()
                     ProgressView()
-                        .transition(.opacity)
                     Spacer()
                 }
+                .listRowSeparator(.hidden)
             }
         }
+        .listStyle(.plain)
+
+        // Fondo “global” de pantalla
+        .scrollContentBackground(.hidden)
+        .background(AppBackgroundView())
+
         // Large title normal cuando NO estás en búsqueda
         .navigationTitle(isFilteredMode ? "" : "Characters")
         .navigationBarTitleDisplayMode(.large)
 
-        // Detecta foco real del buscador
         .searchable(
             text: $viewModel.query,
             isPresented: $isSearchPresented,
             prompt: "Filter by name"
         )
-        .onChange(of: viewModel.query) { _, newValue in
-            viewModel.onQueryChanged(newValue)
+        .onChange(of: viewModel.query) { _, _ in
+            viewModel.onQueryChanged(viewModel.query)
         }
         .overlay {
             if viewModel.state.isLoading && viewModel.state.characters.isEmpty {
                 ProgressView()
-                    .transition(.opacity)
             }
         }
-
-        // Cabecera “custom” SOLO durante búsqueda
         .safeAreaInset(edge: .top, spacing: 0) {
             if isFilteredMode {
                 HStack {
@@ -103,13 +127,11 @@ struct CharactersListView: View {
                 .padding(.horizontal)
                 .padding(.vertical, 10)
                 .background(.background)
-                .overlay(
-                    Divider(),
-                    alignment: .bottom
-                )
+                .overlay(Divider(), alignment: .bottom)
                 .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
+
         .animation(.smooth(duration: 0.18), value: isFilteredMode)
         .animation(.smooth(duration: 0.2), value: viewModel.state.characters.count)
         .animation(.smooth(duration: 0.2), value: viewModel.state.isLoading)

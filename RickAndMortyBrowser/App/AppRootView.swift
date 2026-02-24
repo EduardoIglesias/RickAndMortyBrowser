@@ -10,6 +10,7 @@ import SwiftUI
 struct AppRootView: View {
     private let diContainer: AppDIContainer
     @StateObject private var listViewModel: CharactersListViewModel
+    @State private var path = NavigationPath()
 
     init(diContainer: AppDIContainer) {
         self.diContainer = diContainer
@@ -17,14 +18,18 @@ struct AppRootView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            CharactersListView(viewModel: listViewModel)
-                .navigationDestination(for: AppRoute.self) { route in
-                    switch route {
-                    case .characterDetail(let id):
-                        CharacterDetailScreen(characterID: id, diContainer: diContainer)
-                    }
+        NavigationStack(path: $path) {
+            CharactersListView(viewModel: listViewModel) { id in
+                withAnimation(.smooth(duration: 0.25)) {
+                    path.append(AppRoute.characterDetail(id))
                 }
+            }
+            .navigationDestination(for: AppRoute.self) { route in
+                switch route {
+                case .characterDetail(let id):
+                    CharacterDetailScreen(characterID: id, diContainer: diContainer)
+                }
+            }
         }
         .environment(\.diContainer, diContainer)
     }
