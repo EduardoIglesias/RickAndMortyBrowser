@@ -104,6 +104,11 @@ This keeps the UI layer independent from networking and improves testability.
 - Simple animations for state transitions and detail appearance
 - Launch Screen included (`LaunchScreen.storyboard`)
 
+## Dependencies
+
+This project currently uses **no third-party dependencies**.
+If external dependencies were needed (e.g. image caching / snapshot testing), they would be integrated using **Swift Package Manager (SPM)** as requested.
+
 ## Troubleshooting
 
 ### Launch screen image not visible
