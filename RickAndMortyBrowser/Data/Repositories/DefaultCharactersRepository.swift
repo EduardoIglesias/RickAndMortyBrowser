@@ -19,6 +19,20 @@ actor DefaultCharactersRepository: CharactersRepository {
 
     private var characterCache: [Int: RMCharacter] = [:]
 
+    // Cache de páginas remotas para reducir llamadas a la API
+    private struct PageKey: Hashable {
+        let remotePage: Int
+        let filter: String?
+    }
+
+    private struct CachedPage {
+        let dto: CharactersResponseDTO
+        let timestamp: Date
+    }
+
+    private var pageCache: [PageKey: CachedPage] = [:]
+    private let pageCacheTTL: TimeInterval = 10 * 60 // 10 minutos
+
     init(
         remote: CharactersRemoteDataSource,
         pageSize: Int = 10
@@ -36,16 +50,26 @@ actor DefaultCharactersRepository: CharactersRepository {
 
         while buffer.count < pageSize, let remotePage = nextRemotePage {
             do {
-                let dto = try await remote.fetchCharacters(page: remotePage, nameFilter: normalized)
+                let key = PageKey(remotePage: remotePage, filter: normalized)
+
+                let dto: CharactersResponseDTO
+                if let cached = pageCache[key], Date().timeIntervalSince(cached.timestamp) < pageCacheTTL {
+                    dto = cached.dto
+                } else {
+                    dto = try await remote.fetchCharacters(page: remotePage, nameFilter: normalized)
+                    pageCache[key] = CachedPage(dto: dto, timestamp: Date())
+                }
+
                 let mapped: [RMCharacter] = await MainActor.run { dto.results.map { CharacterMapper.map($0) } }
 
-                // cachea lo que viene del listado
+                // Cachea también por ID para el detalle
                 for item in mapped {
                     characterCache[item.id] = item
                 }
 
                 buffer.append(contentsOf: mapped)
                 nextRemotePage = await MainActor.run { CharacterMapper.nextPage(from: dto.info.next) }
+
             } catch let NetworkError.httpStatus(code, _) where code == 404 {
                 // La API devuelve 404 cuando no hay resultados para el filtro.
                 buffer = []

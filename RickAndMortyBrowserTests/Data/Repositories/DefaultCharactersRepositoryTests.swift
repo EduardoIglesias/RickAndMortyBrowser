@@ -1,5 +1,5 @@
 //
-//  DefaultCharactersRepositoryCacheTests.swift
+//  DefaultCharactersRepositoryTests.swift
 //  RickAndMortyBrowser
 //
 //  Created by Eduardo Iglesias Fernandez on 23/2/26.
@@ -77,5 +77,53 @@ struct DefaultCharactersRepositoryCacheTests {
 
         let ids = await remote.fetchedCharacterIDs()
         #expect(ids == [missingID])
+    }
+
+    @Test
+    @MainActor
+    func fetchCharacters_repeatedRemotePageAndFilter_usesCache_andDoesNotCallRemoteAgain() async throws {
+        let remote = CharactersRemoteDataSourceMock()
+
+        let page1Results = (1...20).map { CharacterDTODummy.make(id: $0, name: "Character \($0)") }
+        let page1 = CharactersResponseDTODummy.make(results: page1Results, nextPage: nil)
+
+        await remote.succeedFetchCharacters(page: 1, nameFilter: nil, response: page1)
+
+        let repository = DefaultCharactersRepository(remote: remote, pageSize: 10)
+
+        // First call: UI page 1 -> should fetch remote page 1
+        let (first, _) = try await repository.fetchCharacters(page: 1, nameFilter: nil)
+        #expect(first.map(\.id) == Array(1...10))
+        #expect(await remote.fetchCharactersCallCount() == 1)
+
+        // Second call: simulate a "restart" of the paging session (reload)
+        // This triggers reset and would normally fetch remote page 1 again,
+        // but page cache should serve it without another remote call.
+        let (second, _) = try await repository.fetchCharacters(page: 1, nameFilter: nil)
+        #expect(second.map(\.id) == Array(1...10))
+        #expect(await remote.fetchCharactersCallCount() == 1) // still 1
+    }
+
+    @Test
+    @MainActor
+    func fetchCharacters_sameRemotePageDifferentFilter_doesCallRemoteAgain() async throws {
+        let remote = CharactersRemoteDataSourceMock()
+
+        let unfilteredResults = (1...20).map { CharacterDTODummy.make(id: $0, name: "Character \($0)") }
+        let filteredResults = (101...120).map { CharacterDTODummy.make(id: $0, name: "Rick \($0)") }
+
+        let unfiltered = CharactersResponseDTODummy.make(results: unfilteredResults, nextPage: nil)
+        let filtered = CharactersResponseDTODummy.make(results: filteredResults, nextPage: nil, nameFilter: "Rick")
+
+        await remote.succeedFetchCharacters(page: 1, nameFilter: nil, response: unfiltered)
+        await remote.succeedFetchCharacters(page: 1, nameFilter: "Rick", response: filtered)
+
+        let repository = DefaultCharactersRepository(remote: remote, pageSize: 10)
+
+        _ = try await repository.fetchCharacters(page: 1, nameFilter: nil)
+        #expect(await remote.fetchCharactersCallCount() == 1)
+
+        _ = try await repository.fetchCharacters(page: 1, nameFilter: "Rick")
+        #expect(await remote.fetchCharactersCallCount() == 2) // ifferent cache key
     }
 }
