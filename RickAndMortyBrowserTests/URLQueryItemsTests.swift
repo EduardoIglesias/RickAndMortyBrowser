@@ -15,7 +15,7 @@ struct URLQueryItemsTests {
     @Test
     func appendingQueryItems_addsItems() {
         guard let base = URL(string: "https://example.com/api/character") else {
-            #expect(Bool(false))
+            Issue.record("Failed to create base URL")
             return
         }
 
@@ -35,15 +35,15 @@ struct URLQueryItemsTests {
     @Test
     func appendingQueryItems_withEmptyList_hasNoQueryItems() throws {
         guard let base = URL(string: "https://example.com/api/character") else {
-            #expect(Bool(false))
+            Issue.record("Failed to create base URL")
             return
         }
 
         let url = base.appendingQueryItems([])
 
-        let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
-        #expect(components?.path == "/api/character")
-        #expect((components?.queryItems ?? []).isEmpty)
+        let components = try! #require(URLComponents(url: url, resolvingAgainstBaseURL: false))
+        #expect(components.path == "/api/character")
+        #expect((components.queryItems ?? []).isEmpty)
     }
 }
 

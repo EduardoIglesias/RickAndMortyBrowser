@@ -13,9 +13,10 @@ import Testing
 struct DefaultCharactersRemoteDataSourceTests {
 
     @Test
+    @MainActor
     func fetchCharacters_buildsCorrectEndpoint_andReturnsDTO() async throws {
         let client = NetworkClientMock()
-        let sut = await DefaultCharactersRemoteDataSource(client: client)
+        let sut = DefaultCharactersRemoteDataSource(client: client)
 
         let expected = CharactersResponseDTODummy.make(
             results: [CharacterDTODummy.make(id: 1, name: "Rick")],
@@ -25,8 +26,10 @@ struct DefaultCharactersRemoteDataSourceTests {
         await client.enqueueSuccess(expected)
 
         let dto = try await sut.fetchCharacters(page: 2, nameFilter: "Rick")
-        await #expect(dto.results.first?.id == 1)
-        await #expect(dto.info.next != nil)
+        let firstResultID = dto.results.first?.id
+        let hasNext = dto.info.next != nil
+        #expect(firstResultID == 1)
+        #expect(hasNext)
 
         let endpoints = await client.capturedEndpoints()
         #expect(endpoints.count == 1)
@@ -36,22 +39,38 @@ struct DefaultCharactersRemoteDataSourceTests {
             return
         }
 
-        #expect(endpoint.path == "character")
-        #expect(endpoint.queryItems.contains(where: { $0.name == "page" && $0.value == "2" }))
-        #expect(endpoint.queryItems.contains(where: { $0.name == "name" && $0.value == "Rick" }))
+        // Capture actor-isolated properties into local values BEFORE using them in expectations
+        let path: String = endpoint.path
+        let queryItems: [URLQueryItem] = endpoint.queryItems
+        let hasPage2 = queryItems.contains(where: { item in
+            let name = item.name
+            let value = item.value
+            return name == "page" && value == "2"
+        })
+        let hasNameRick = queryItems.contains(where: { item in
+            let name = item.name
+            let value = item.value
+            return name == "name" && value == "Rick"
+        })
+
+        #expect(path == "character")
+        #expect(hasPage2)
+        #expect(hasNameRick)
     }
 
     @Test
+    @MainActor
     func fetchCharacter_buildsCorrectEndpoint_andReturnsDTO() async throws {
         let client = NetworkClientMock()
-        let sut = await DefaultCharactersRemoteDataSource(client: client)
+        let sut = DefaultCharactersRemoteDataSource(client: client)
 
         let expected = CharacterDTODummy.make(id: 10, name: "Morty")
         await client.enqueueSuccess(expected)
 
         let dto = try await sut.fetchCharacter(id: 10)
-        #expect(dto.id == 10)
-        #expect(dto.name == "Morty")
+        let id = dto.id
+        let name = dto.name
+        #expect(id == 10 && name == "Morty")
 
         let endpoints = await client.capturedEndpoints()
         #expect(endpoints.count == 1)
@@ -61,14 +80,19 @@ struct DefaultCharactersRemoteDataSourceTests {
             return
         }
 
-        #expect(endpoint.path == "character/10")
-        #expect(endpoint.queryItems.isEmpty)
+        // Capture actor-isolated properties into local values BEFORE using them in expectations
+        let path: String = endpoint.path
+        let isQueryEmpty: Bool = endpoint.queryItems.isEmpty
+
+        #expect(path == "character/10")
+        #expect(isQueryEmpty)
     }
 
     @Test
+    @MainActor
     func fetchCharacters_whenClientThrows_propagatesError() async {
         let client = NetworkClientMock()
-        let sut = await DefaultCharactersRemoteDataSource(client: client)
+        let sut = DefaultCharactersRemoteDataSource(client: client)
 
         await client.enqueueFailure(NetworkErrorDummy.http500(body: "Boom"))
 
@@ -81,3 +105,4 @@ struct DefaultCharactersRemoteDataSourceTests {
         }
     }
 }
+

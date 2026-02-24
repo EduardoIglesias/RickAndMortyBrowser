@@ -42,26 +42,10 @@ struct CharacterRowView: View {
     }
 
     private var avatar: some View {
-        Group {
-            if let url = character.imageURL {
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case .empty:
-                        ProgressView()
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .scaledToFill()
-                    case .failure:
-                        placeholderAvatar
-                    @unknown default:
-                        placeholderAvatar
-                    }
-                }
-            } else {
-                placeholderAvatar
-            }
+        RemoteImageView(url: character.imageURL, retries: 2) {
+            placeholderAvatar
         }
+        .scaledToFill()
         .frame(width: 56, height: 56)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .overlay(

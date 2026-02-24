@@ -72,6 +72,7 @@ final class CharactersListViewModel: ObservableObject {
 
             if isLoadMore {
                 state.characters.append(contentsOf: items)
+                await ImagePipeline.shared.prefetch(items.compactMap(\.imageURL), retries: 1)
             } else {
                 state.characters = items
             }

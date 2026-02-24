@@ -93,27 +93,11 @@ struct CharacterDetailView: View {
 
     @ViewBuilder
     private func headerImage(for character: RMCharacter) -> some View {
-        if let url = character.imageURL {
-            AsyncImage(url: url) { phase in
-                switch phase {
-                case .empty:
-                    ZStack {
-                        Rectangle().fill(.quaternary)
-                        ProgressView()
-                    }
-                case .success(let image):
-                    image
-                        .resizable()
-                        .scaledToFill()
-                case .failure:
-                    placeholderHeader
-                @unknown default:
-                    placeholderHeader
-                }
-            }
-        } else {
+        RemoteImageView(url: character.imageURL, retries: 2) {
             placeholderHeader
         }
+        .scaledToFill()
+        .clipped()
     }
 
     private var placeholderHeader: some View {
