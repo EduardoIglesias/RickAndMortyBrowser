@@ -1,3 +1,7 @@
+[![IDE](https://img.shields.io/badge/Xcode-26-blue.svg)](https://developer.apple.com/xcode/)
+[![Language](https://img.shields.io/badge/swift-6-orange.svg)](https://swift.org)
+[![Platform](https://img.shields.io/badge/iOS-18-green.svg)](https://developer.apple.com/ios/)
+
 # RickAndMortyBrowser
 
 SwiftUI iOS app to browse **Rick and Morty** characters: list with search/filter and a character detail screen.
