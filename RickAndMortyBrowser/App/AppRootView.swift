@@ -26,5 +26,6 @@ struct AppRootView: View {
                     }
                 }
         }
+        .environment(\.diContainer, diContainer)
     }
 }

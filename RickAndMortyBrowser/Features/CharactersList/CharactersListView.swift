@@ -50,6 +50,12 @@ struct CharactersListView: View {
             ForEach(viewModel.state.characters) { character in
                 NavigationLink(value: AppRoute.characterDetail(character.id)) {
                     CharacterRowView(character: character)
+                        .frame(maxWidth: .infinity, alignment: .leading) // hace que el label ocupe toda la fila
+                        .contentShape(Rectangle())                       // toda la fila es tappable
+                }
+                .buttonStyle(.plain)
+                .transaction { transaction in
+                    transaction.animation = .smooth(duration: 0.25)
                 }
                 .onAppear {
                     Task { await viewModel.loadMoreIfNeeded(currentItem: character) }
@@ -60,6 +66,7 @@ struct CharactersListView: View {
                 HStack {
                     Spacer()
                     ProgressView()
+                        .transition(.opacity)
                     Spacer()
                 }
             }
@@ -80,6 +87,7 @@ struct CharactersListView: View {
         .overlay {
             if viewModel.state.isLoading && viewModel.state.characters.isEmpty {
                 ProgressView()
+                    .transition(.opacity)
             }
         }
 
@@ -103,13 +111,10 @@ struct CharactersListView: View {
             }
         }
         .animation(.smooth(duration: 0.18), value: isFilteredMode)
+        .animation(.smooth(duration: 0.2), value: viewModel.state.characters.count)
+        .animation(.smooth(duration: 0.2), value: viewModel.state.isLoading)
+        .animation(.smooth(duration: 0.2), value: viewModel.state.errorMessage)
 
         .task { await viewModel.loadInitialIfNeeded() }
-        .navigationDestination(for: AppRoute.self) { route in
-            switch route {
-            case .characterDetail(let id):
-                CharacterDetailScreen(characterID: id, diContainer: diContainer)
-            }
-        }
     }
 }

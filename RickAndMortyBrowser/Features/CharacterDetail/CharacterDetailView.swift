@@ -46,6 +46,8 @@ struct CharacterDetailView: View {
                         .padding(.horizontal)
                         .padding(.bottom, 24)
                     }
+                    .transition(.opacity.combined(with: .move(edge: .bottom)))
+                    .animation(.smooth(duration: 0.25), value: viewModel.state.character?.id)
                 }
             } else {
                 Text("No data.")
