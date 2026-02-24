@@ -7,6 +7,7 @@
 
 import Foundation
 
+// swiftlint:disable static_over_final_class
 final class URLProtocolStub: URLProtocol {
 
     struct Stub {
@@ -78,3 +79,4 @@ final class URLProtocolStub: URLProtocol {
 
     override func stopLoading() {}
 }
+// swiftlint:enable static_over_final_class

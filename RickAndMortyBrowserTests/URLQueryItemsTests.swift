@@ -13,7 +13,7 @@ import Testing
 struct URLQueryItemsTests {
 
     @Test
-    func appendingQueryItems_addsItems() {
+    func appendingQueryItems_addsItems() throws {
         guard let base = URL(string: "https://example.com/api/character") else {
             Issue.record("Failed to create base URL")
             return
@@ -24,7 +24,7 @@ struct URLQueryItemsTests {
             URLQueryItem(name: "page", value: "1"),
             URLQueryItem(name: "name", value: "Rick")
         ]
-        let url = try! #require(components?.url)
+        let url = try #require(components?.url)
 
         let components2 = URLComponents(url: url, resolvingAgainstBaseURL: false)
         let items = components2?.queryItems ?? []
@@ -41,9 +41,8 @@ struct URLQueryItemsTests {
 
         let url = base.appendingQueryItems([])
 
-        let components = try! #require(URLComponents(url: url, resolvingAgainstBaseURL: false))
+        let components = try #require(URLComponents(url: url, resolvingAgainstBaseURL: false))
         #expect(components.path == "/api/character")
         #expect((components.queryItems ?? []).isEmpty)
     }
 }
-

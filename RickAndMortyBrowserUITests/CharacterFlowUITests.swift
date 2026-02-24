@@ -23,7 +23,6 @@ final class CharacterFlowUITests: XCTestCase {
         let avatar = firstCell.descendants(matching: .any)["characterRow.avatar"]
         XCTAssertTrue(avatar.exists)
 
-
         // Tap en la primera celda para ir al detalle
         firstCell.tap()
 

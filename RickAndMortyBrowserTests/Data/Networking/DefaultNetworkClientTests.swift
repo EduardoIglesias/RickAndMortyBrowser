@@ -188,7 +188,6 @@ struct DefaultNetworkClientTests {
         }
     }
 
-
     // MARK: - Helpers
 
     private static func makeClient() -> DefaultNetworkClient {
@@ -205,4 +204,3 @@ struct DefaultNetworkClientTests {
         return url
     }
 }
-

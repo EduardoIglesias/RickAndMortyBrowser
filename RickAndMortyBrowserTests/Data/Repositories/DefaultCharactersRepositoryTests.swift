@@ -52,7 +52,6 @@ struct DefaultCharactersRepositoryCacheTests {
         #expect(listCalls == 1)
     }
 
-
     @Test
     @MainActor
     func fetchCharacter_cacheMiss_callsRemoteOnce_thenCaches() async throws {

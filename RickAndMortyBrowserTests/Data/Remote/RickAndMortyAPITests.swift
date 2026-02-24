@@ -17,7 +17,8 @@ struct RickAndMortyAPITests {
         let endpoint = RickAndMortyAPI.characters(page: 2, name: "Rick")
 
         let request = try endpoint.makeURLRequest()
-        let components = URLComponents(url: request.url!, resolvingAgainstBaseURL: false)
+        let url = try #require(request.url)
+        let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
         let items = components?.queryItems ?? []
 
         #expect(endpoint.path == "character")
@@ -30,7 +31,8 @@ struct RickAndMortyAPITests {
         let endpoint = RickAndMortyAPI.character(id: 10)
 
         let request = try endpoint.makeURLRequest()
-        let components = URLComponents(url: request.url!, resolvingAgainstBaseURL: false)
+        let url = try #require(request.url)
+        let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
 
         #expect(components?.path.hasSuffix("/api/character/10") == true)
         #expect(endpoint.queryItems.isEmpty == true)

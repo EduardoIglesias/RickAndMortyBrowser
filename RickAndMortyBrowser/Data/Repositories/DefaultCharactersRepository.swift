@@ -110,4 +110,3 @@ actor DefaultCharactersRepository: CharactersRepository {
         return trimmed.isEmpty ? nil : trimmed
     }
 }
-

@@ -51,7 +51,9 @@ actor CharactersRemoteDataSourceMock: CharactersRemoteDataSource {
         fetchCharactersCalls.append(key)
 
         guard let result = fetchCharactersResults[key] else {
-            preconditionFailure("CharactersRemoteDataSourceMock: no configured result for fetchCharacters(page:\(page), nameFilter:\(String(describing: nameFilter))).")
+            let messagePrefix = "CharactersRemoteDataSourceMock: no configured result for fetchCharacters("
+            let message = "\(messagePrefix)page:\(page), nameFilter:\(String(describing: nameFilter)))."
+            fail(message)
         }
 
         switch result {
@@ -64,7 +66,7 @@ actor CharactersRemoteDataSourceMock: CharactersRemoteDataSource {
         fetchCharacterCalls.append(id)
 
         guard let result = fetchCharacterResults[id] else {
-            preconditionFailure("CharactersRemoteDataSourceMock: no configured result for fetchCharacter(id:\(id)).")
+            fail("CharactersRemoteDataSourceMock: no configured result for fetchCharacter(id:\(id)).")
         }
 
         switch result {
@@ -85,5 +87,9 @@ actor CharactersRemoteDataSourceMock: CharactersRemoteDataSource {
     private func normalize(_ filter: String?) -> FilterKey {
         let trimmed = (filter ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? .none : .value(trimmed)
+    }
+
+    private func fail(_ message: String) -> Never {
+        preconditionFailure(message)
     }
 }
