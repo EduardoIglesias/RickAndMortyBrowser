@@ -34,4 +34,3 @@ struct CharacterDetailScreen: View {
             .id(characterID) // fuerza identidad estable por id
     }
 }
-
