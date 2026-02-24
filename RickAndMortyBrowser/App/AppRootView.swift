@@ -8,19 +8,29 @@
 import SwiftUI
 
 struct AppRootView: View {
-    @StateObject private var viewModel: CharactersListViewModel
+    private let diContainer: AppDIContainer
+    @StateObject private var listViewModel: CharactersListViewModel
+    @State private var path = NavigationPath()
 
-    init(diContainer: AppDIContainer = AppDIContainer()) {
-        _viewModel = StateObject(wrappedValue: diContainer.makeCharactersListViewModel())
+    init(diContainer: AppDIContainer) {
+        self.diContainer = diContainer
+        _listViewModel = StateObject(wrappedValue: diContainer.makeCharactersListViewModel())
     }
 
     var body: some View {
-        NavigationStack {
-            CharactersListView(viewModel: viewModel)
+        NavigationStack(path: $path) {
+            CharactersListView(viewModel: listViewModel) { id in
+                withAnimation(.smooth(duration: 0.25)) {
+                    path.append(AppRoute.characterDetail(id))
+                }
+            }
+            .navigationDestination(for: AppRoute.self) { route in
+                switch route {
+                case .characterDetail(let id):
+                    CharacterDetailScreen(characterID: id, diContainer: diContainer)
+                }
+            }
         }
+        .environment(\.diContainer, diContainer)
     }
-}
-
-#Preview {
-    AppRootView()
 }

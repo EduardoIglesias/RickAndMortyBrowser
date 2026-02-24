@@ -8,14 +8,23 @@
 import Foundation
 
 final class AppDIContainer {
-    private let charactersRepository: CharactersRepository
+    private let client: NetworkClient
+    private let remote: CharactersRemoteDataSource
+    private let repository: CharactersRepository
 
-    init(charactersRepository: CharactersRepository = DefaultCharactersRepository()) {
-        self.charactersRepository = charactersRepository
+    init() {
+        self.client = DefaultNetworkClient()
+        self.remote = DefaultCharactersRemoteDataSource(client: client)
+        self.repository = DefaultCharactersRepository(remote: remote)
     }
 
     func makeCharactersListViewModel() -> CharactersListViewModel {
-        let useCase = FetchCharactersPageUseCase(repository: charactersRepository)
+        let useCase = FetchCharactersPageUseCase(repository: repository)
         return CharactersListViewModel(fetchCharactersPageUseCase: useCase)
+    }
+
+    func makeCharacterDetailViewModel(characterID: Int) -> CharacterDetailViewModel {
+        let useCase = FetchCharacterDetailUseCase(repository: repository)
+        return CharacterDetailViewModel(characterID: characterID, fetchCharacterDetailUseCase: useCase)
     }
 }

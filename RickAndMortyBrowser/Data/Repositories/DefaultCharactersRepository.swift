@@ -8,64 +8,105 @@
 import Foundation
 
 actor DefaultCharactersRepository: CharactersRepository {
+    private let remote: CharactersRemoteDataSource
     private let pageSize: Int
-    private let allCharacters: [RMCharacter]
 
-    init(pageSize: Int = 10, allCharacters: [RMCharacter] = DefaultCharactersRepository.makeStubCharacters()) {
+    private var currentFilter: String?
+    private var expectedUIPage: Int = 1
+
+    private var buffer: [RMCharacter] = []
+    private var nextRemotePage: Int? = 1
+
+    private var characterCache: [Int: RMCharacter] = [:]
+
+    // Cache de páginas remotas para reducir llamadas a la API
+    private struct PageKey: Hashable {
+        let remotePage: Int
+        let filter: String?
+    }
+
+    private struct CachedPage {
+        let dto: CharactersResponseDTO
+        let timestamp: Date
+    }
+
+    private var pageCache: [PageKey: CachedPage] = [:]
+    private let pageCacheTTL: TimeInterval = 10 * 60 // 10 minutos
+
+    init(
+        remote: CharactersRemoteDataSource,
+        pageSize: Int = 10
+    ) {
+        self.remote = remote
         self.pageSize = pageSize
-        self.allCharacters = allCharacters
     }
 
     func fetchCharacters(page: Int, nameFilter: String?) async throws -> ([RMCharacter], RMPageInfo) {
-        try await Task.sleep(for: .milliseconds(120))
+        let normalized = normalize(nameFilter)
 
-        let filtered = filterCharacters(allCharacters, by: nameFilter)
-
-        let startIndex = max(0, (page - 1) * pageSize)
-        guard startIndex < filtered.count else {
-            return ([], RMPageInfo(nextPage: nil))
+        if page == 1 || normalized != currentFilter || page != expectedUIPage {
+            reset(for: normalized)
         }
 
-        let endIndex = min(filtered.count, startIndex + pageSize)
-        let slice = Array(filtered[startIndex..<endIndex])
+        while buffer.count < pageSize, let remotePage = nextRemotePage {
+            do {
+                let key = PageKey(remotePage: remotePage, filter: normalized)
 
-        let nextPage: Int?
-        if endIndex < filtered.count {
-            nextPage = page + 1
-        } else {
-            nextPage = nil
+                let dto: CharactersResponseDTO
+                if let cached = pageCache[key], Date().timeIntervalSince(cached.timestamp) < pageCacheTTL {
+                    dto = cached.dto
+                } else {
+                    dto = try await remote.fetchCharacters(page: remotePage, nameFilter: normalized)
+                    pageCache[key] = CachedPage(dto: dto, timestamp: Date())
+                }
+
+                let mapped: [RMCharacter] = await MainActor.run { dto.results.map { CharacterMapper.map($0) } }
+
+                // Cachea también por ID para el detalle
+                for item in mapped {
+                    characterCache[item.id] = item
+                }
+
+                buffer.append(contentsOf: mapped)
+                nextRemotePage = await MainActor.run { CharacterMapper.nextPage(from: dto.info.next) }
+
+            } catch let NetworkError.httpStatus(code, _) where code == 404 {
+                // La API devuelve 404 cuando no hay resultados para el filtro.
+                buffer = []
+                nextRemotePage = nil
+                break
+            }
         }
 
-        return (slice, RMPageInfo(nextPage: nextPage))
+        let count = min(pageSize, buffer.count)
+        let items = Array(buffer.prefix(count))
+        buffer.removeFirst(count)
+
+        let hasMore = !buffer.isEmpty || nextRemotePage != nil
+        let nextUIPage: Int? = hasMore ? (page + 1) : nil
+
+        expectedUIPage = page + 1
+        return (items, RMPageInfo(nextPage: nextUIPage))
     }
 
-    private func filterCharacters(_ characters: [RMCharacter], by nameFilter: String?) -> [RMCharacter] {
-        guard let nameFilter, !nameFilter.isEmpty else { return characters }
+    func fetchCharacter(id: Int) async throws -> RMCharacter {
+        if let cached = characterCache[id] { return cached }
 
-        let query = nameFilter.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !query.isEmpty else { return characters }
-
-        return characters.filter { $0.name.range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) != nil }
+        let dto = try await remote.fetchCharacter(id: id)
+        let mapped: RMCharacter = await MainActor.run { CharacterMapper.map(dto) }
+        characterCache[id] = mapped
+        return mapped
     }
 
-    private static func makeStubCharacters() -> [RMCharacter] {
-        let statuses = ["Alive", "Dead", "Unknown"]
-        let species = ["Human", "Alien", "Robot"]
-        let genders = ["Female", "Male", "Unknown"]
-        let origins = ["Earth (C-137)", "Citadel of Ricks", "Unknown"]
-        let locations = ["Earth", "Citadel", "Space", "Unknown"]
+    private func reset(for filter: String?) {
+        currentFilter = filter
+        expectedUIPage = 1
+        buffer = []
+        nextRemotePage = 1
+    }
 
-        return (1...60).map { index in
-            RMCharacter(
-                id: index,
-                name: "Character \(index)",
-                status: statuses[index % statuses.count],
-                species: species[index % species.count],
-                gender: genders[index % genders.count],
-                imageURL: nil,
-                originName: origins[index % origins.count],
-                locationName: locations[index % locations.count]
-            )
-        }
+    private func normalize(_ value: String?) -> String? {
+        let trimmed = (value ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
     }
 }
