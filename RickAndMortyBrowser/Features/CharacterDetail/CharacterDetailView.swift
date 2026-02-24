@@ -15,7 +15,7 @@ struct CharacterDetailView: View {
 
     var body: some View {
         ZStack {
-                AppBackgroundView()
+            AppBackgroundView(opacity: 0.18)
             Group {
                 if viewModel.state.isLoading && viewModel.state.character == nil {
                     ProgressView()
