@@ -162,6 +162,7 @@ private struct CharacterDetailLandscapeSplitView: View {
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
                 .frame(maxWidth: width)
+                .accessibilityIdentifier("characterDetail.name")
         }
         .frame(width: width, alignment: .top)
     }
@@ -189,7 +190,7 @@ private struct CharacterDetailErrorView: View {
 
 // MARK: - Shared UI (banner + cards + pills)
 
-private enum CharacterDetailUI {
+enum CharacterDetailUI {
     static func headerBanner(character: RMCharacter, height: CGFloat) -> some View {
         ZStack(alignment: .bottomLeading) {
             RemoteImageView(url: character.imageURL, retries: 2) {
@@ -210,6 +211,7 @@ private enum CharacterDetailUI {
                     .fontWeight(.bold)
                     .foregroundStyle(.white)
                     .accessibilityIdentifier("characterDetail.name")
+                    .accessibilityElement(children: .contain)
 
                 HStack(spacing: 10) {
                     statusPill(text: character.status, color: statusColor(for: character.status))
@@ -238,37 +240,54 @@ private enum CharacterDetailUI {
 
     static func overviewCard(for character: RMCharacter) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            labeledRow(title: "Status", value: character.status, leadingDotColor: statusColor(for: character.status))
+            labeledRow(
+                fieldID: "status",
+                titleKey: "detail.field.status",
+                value: character.status,
+                leadingDotColor: CharacterDetailUI.statusColor(for: character.status)
+            )
             Divider().opacity(0.5)
-            labeledRow(title: "Species", value: character.species)
+            labeledRow(fieldID: "species", titleKey: "detail.field.species", value: character.species)
             Divider().opacity(0.5)
-            labeledRow(title: "Gender", value: character.gender)
+            labeledRow(fieldID: "gender", titleKey: "detail.field.gender", value: character.gender)
         }
         .cardStyle()
     }
 
     static func locationsCard(for character: RMCharacter) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            labeledRow(title: "Current location", value: character.locationName)
+            labeledRow(
+                fieldID: "currentlocation", // 👈 lo dejo EXACTO como tu test espera
+                titleKey: "detail.field.currentLocation",
+                value: character.locationName
+            )
             Divider().opacity(0.5)
-            labeledRow(title: "Origin", value: character.originName)
+            labeledRow(fieldID: "origin", titleKey: "detail.field.origin", value: character.originName)
         }
         .cardStyle()
     }
 
-    static func labeledRow(title: String, value: String, leadingDotColor: Color? = nil) -> some View {
+    static private func labeledRow(
+        fieldID: String,
+        titleKey: LocalizedStringKey,
+        value: String,
+        leadingDotColor: Color? = nil
+    ) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 10) {
             Group {
                 if let leadingDotColor {
-                    Circle().fill(leadingDotColor).frame(width: 10, height: 10)
+                    Circle()
+                        .fill(leadingDotColor)
+                        .frame(width: 10, height: 10)
                 } else {
-                    Color.clear.frame(width: 10, height: 10)
+                    Color.clear
+                        .frame(width: 10, height: 10)
                 }
             }
             .frame(width: 14, alignment: .center)
             .accessibilityHidden(true)
 
-            Text(title)
+            Text(titleKey)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
@@ -282,6 +301,8 @@ private enum CharacterDetailUI {
                 .lineLimit(2)
                 .layoutPriority(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                // ID estable, independiente del idioma
+                .accessibilityIdentifier("characterDetail.\(fieldID).value")
         }
     }
 
