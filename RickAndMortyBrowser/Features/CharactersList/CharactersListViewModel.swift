@@ -14,13 +14,24 @@ final class CharactersListViewModel: ObservableObject {
     @Published var query: String = ""
 
     private let fetchCharactersPageUseCase: FetchCharactersPageUseCase
+
+    private let debounceDelay: Duration
+    private let sleep: @Sendable (Duration) async -> Void
+
     private var nextPage: Int? = 1
     private var hasLoadedOnce: Bool = false
     private var searchTask: Task<Void, Never>?
-    private var lastLoadMoreTriggerID: Int?
 
-    init(fetchCharactersPageUseCase: FetchCharactersPageUseCase) {
+    init(
+        fetchCharactersPageUseCase: FetchCharactersPageUseCase,
+        debounceDelay: Duration = .milliseconds(300),
+        sleep: @escaping @Sendable (Duration) async -> Void = { duration in
+            try? await Task.sleep(for: duration)
+        }
+    ) {
         self.fetchCharactersPageUseCase = fetchCharactersPageUseCase
+        self.debounceDelay = debounceDelay
+        self.sleep = sleep
     }
 
     func loadInitialIfNeeded() async {
@@ -32,8 +43,9 @@ final class CharactersListViewModel: ObservableObject {
     func onQueryChanged(_ newValue: String) {
         searchTask?.cancel()
         searchTask = Task { [weak self] in
-            try? await Task.sleep(for: .milliseconds(300))
-            guard let self, !Task.isCancelled else { return }
+            guard let self else { return }
+            await self.sleep(self.debounceDelay)
+            guard !Task.isCancelled else { return }
             await self.reload()
         }
     }
@@ -43,15 +55,12 @@ final class CharactersListViewModel: ObservableObject {
         state.errorMessage = nil
         state.canLoadMore = true
         state.characters = []
-        lastLoadMoreTriggerID = nil
+
         await loadNextPage(isLoadMore: false)
     }
 
     func loadMoreIfNeeded(currentItem: RMCharacter) async {
         guard currentItem.id == state.characters.last?.id else { return }
-        guard lastLoadMoreTriggerID != currentItem.id else { return } // evita repetición
-        lastLoadMoreTriggerID = currentItem.id
-
         await loadNextPage(isLoadMore: true)
     }
 
@@ -75,16 +84,10 @@ final class CharactersListViewModel: ObservableObject {
             let (items, info) = try await fetchCharactersPageUseCase.execute(page: page, nameFilter: filter)
 
             if isLoadMore {
-                // Dedup por id para evitar duplicados (y warnings con matchedGeometry)
-                let existingIDs = Set(state.characters.map(\.id))
-                let newItems = items.filter { !existingIDs.contains($0.id) }
-
-                state.characters.append(contentsOf: newItems)
-                await ImagePipeline.shared.prefetch(newItems.compactMap(\.imageURL), retries: 1)
+                state.characters.append(contentsOf: items)
+                await ImagePipeline.shared.prefetch(items.compactMap(\.imageURL), retries: 1)
             } else {
-                // Por seguridad: dedup también en la primera carga
-                state.characters = Self.dedupByID(items)
-                await ImagePipeline.shared.prefetch(state.characters.compactMap(\.imageURL), retries: 1)
+                state.characters = items
             }
 
             nextPage = info.nextPage
@@ -99,10 +102,5 @@ final class CharactersListViewModel: ObservableObject {
     private func normalizedQuery(from raw: String) -> String? {
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? nil : trimmed
-    }
-
-    private static func dedupByID(_ items: [RMCharacter]) -> [RMCharacter] {
-        var seen = Set<Int>()
-        return items.filter { seen.insert($0.id).inserted }
     }
 }
