@@ -23,7 +23,7 @@ struct CharacterDetailScreen: View {
     }
 
     var body: some View {
-        CharacterDetailView(viewModel: viewModel, characterID: characterID)
+        CharacterDetailView(viewModel: viewModel)
             .task(id: characterID) {
                 if !didHaptic {
                     didHaptic = true
@@ -31,6 +31,5 @@ struct CharacterDetailScreen: View {
                 }
                 await viewModel.loadIfNeeded()
             }
-            .id(characterID) // fuerza identidad estable por id
     }
 }

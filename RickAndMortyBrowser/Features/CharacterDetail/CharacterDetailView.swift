@@ -9,71 +9,195 @@ import SwiftUI
 
 struct CharacterDetailView: View {
     @ObservedObject var viewModel: CharacterDetailViewModel
-    let characterID: Int
 
-    @State private var contentAppeared = false
+    @State private var isLandscape = false
 
     var body: some View {
-        ZStack {
-            AppBackgroundView(opacity: 0.18)
+        GeometryReader { proxy in
             Group {
                 if viewModel.state.isLoading && viewModel.state.character == nil {
                     ProgressView()
-                        .onAppear { contentAppeared = false }
                 } else if let message = viewModel.state.errorMessage {
-                    VStack(spacing: 12) {
-                        Text(message)
-                            .foregroundStyle(.red)
-                            .font(.footnote)
-                            .multilineTextAlignment(.center)
-                        
-                        Button("Retry") {
-                            Task { await viewModel.reload() }
-                        }
-                        .buttonStyle(.borderedProminent)
+                    CharacterDetailErrorView(message: message) {
+                        Task { await viewModel.reload() }
                     }
-                    .padding()
                 } else if let character = viewModel.state.character {
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: 16) {
-                            header(for: character)
-                            
-                            VStack(alignment: .leading, spacing: 12) {
-                                Text("Overview")
-                                    .font(.headline)
-                                
-                                overviewCard(for: character)
-                                
-                                Text("Locations")
-                                    .font(.headline)
-                                
-                                locationsCard(for: character)
-                            }
-                            .padding(.horizontal)
-                            .padding(.bottom, 24)
-                        }
+                    if isLandscape {
+                        CharacterDetailLandscapeSplitView(character: character)
+                    } else {
+                        CharacterDetailPortraitListView(character: character)
                     }
-                    .opacity(contentAppeared ? 1 : 0)
-                    .scaleEffect(contentAppeared ? 1 : 0.96, anchor: .top)
-                    .onAppear { contentAppeared = true }
-                    .onChange(of: character.id) { _, _ in contentAppeared = true }
-                    .animation(.smooth(duration: 0.25), value: contentAppeared)
                 } else {
                     Text("No data.")
                         .foregroundStyle(.secondary)
                 }
+            }
+            .onAppear { updateOrientation(using: proxy.size) }
+            .onChange(of: proxy.size) { _, newSize in
+                updateOrientation(using: newSize)
             }
         }
         .navigationTitle("Character")
         .navigationBarTitleDisplayMode(.inline)
     }
 
-    // MARK: - Header
+    private func updateOrientation(using size: CGSize) {
+        let newValue = size.width > size.height
+        if isLandscape != newValue {
+            isLandscape = newValue
+        }
+    }
+}
 
-    @ViewBuilder
-    private func header(for character: RMCharacter) -> some View {
+// MARK: - Portrait (List + banner + animación)
+
+private struct CharacterDetailPortraitListView: View {
+    let character: RMCharacter
+    @State private var appeared = false
+
+    var body: some View {
+        ZStack(alignment: .top) {
+            AppBackgroundView(opacity: 0.18)
+
+            List {
+                CharacterDetailUI.headerBanner(character: character, height: 280)
+                    .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+
+                Section {
+                    CharacterDetailUI.overviewCard(for: character)
+                        .listRowInsets(.init(top: 0, leading: 16, bottom: 0, trailing: 16))
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                } header: {
+                    Text("Overview")
+                        .font(.headline)
+                        .textCase(nil)
+                }
+
+                Section {
+                    CharacterDetailUI.locationsCard(for: character)
+                        .listRowInsets(.init(top: 0, leading: 16, bottom: 0, trailing: 16))
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                } header: {
+                    Text("Locations")
+                        .font(.headline)
+                        .textCase(nil)
+                }
+            }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+            // animación solo en portrait (tu “entrada”)
+            .opacity(appeared ? 1 : 0)
+            .scaleEffect(appeared ? 1 : 0.96, anchor: .top)
+            .onAppear {
+                appeared = false
+                DispatchQueue.main.async {
+                    withAnimation(.easeOut(duration: 0.45)) { appeared = true }
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Landscape (Split: izquierda imagen+nombre, derecha cards)
+
+private struct CharacterDetailLandscapeSplitView: View {
+    let character: RMCharacter
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            AppBackgroundView(opacity: 0.14)
+
+            GeometryReader { proxy in
+                let leftWidth = min(240, max(180, proxy.size.width * 0.30))
+
+                ScrollView {
+                    HStack(alignment: .top, spacing: 16) {
+                        leftColumn(width: leftWidth)
+
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Overview")
+                                .font(.headline)
+
+                            CharacterDetailUI.overviewCard(for: character)
+
+                            Text("Locations")
+                                .font(.headline)
+
+                            CharacterDetailUI.locationsCard(for: character)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .topLeading)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 12)
+                    .padding(.bottom, 24)
+                    .frame(maxWidth: .infinity, alignment: .topLeading)
+                }
+                // fuerza alineación arriba del scroll
+                .frame(width: proxy.size.width, height: proxy.size.height, alignment: .topLeading)
+            }
+        }
+    }
+
+    private func leftColumn(width: CGFloat) -> some View {
+        VStack(alignment: .center, spacing: 10) {
+            RemoteImageView(url: character.imageURL, retries: 2) {
+                CharacterDetailUI.placeholderHeader
+            }
+            .scaledToFill()
+            .frame(width: width, height: width)
+            .clipped()
+            .clipShape(RoundedRectangle(cornerRadius: 18))
+            .overlay(
+                RoundedRectangle(cornerRadius: 18)
+                    .stroke(.quaternary, lineWidth: 1)
+            )
+
+            Text(character.name)
+                .font(.headline)
+                .fontWeight(.semibold)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .frame(maxWidth: width)
+                .accessibilityIdentifier("characterDetail.name")
+        }
+        .frame(width: width, alignment: .top)
+    }
+}
+
+// MARK: - Error
+
+private struct CharacterDetailErrorView: View {
+    let message: String
+    let onRetry: () -> Void
+
+    var body: some View {
+        VStack(spacing: 12) {
+            Text(message)
+                .foregroundStyle(.red)
+                .font(.footnote)
+                .multilineTextAlignment(.center)
+
+            Button("Retry", action: onRetry)
+                .buttonStyle(.borderedProminent)
+        }
+        .padding()
+    }
+}
+
+// MARK: - Shared UI (banner + cards + pills)
+
+enum CharacterDetailUI {
+    static func headerBanner(character: RMCharacter, height: CGFloat) -> some View {
         ZStack(alignment: .bottomLeading) {
-            headerImage(for: character)
+            RemoteImageView(url: character.imageURL, retries: 2) {
+                placeholderHeader
+            }
+            .scaledToFill()
+            .clipped()
 
             LinearGradient(
                 colors: [.clear, .black.opacity(0.65)],
@@ -87,6 +211,7 @@ struct CharacterDetailView: View {
                     .fontWeight(.bold)
                     .foregroundStyle(.white)
                     .accessibilityIdentifier("characterDetail.name")
+                    .accessibilityElement(children: .contain)
 
                 HStack(spacing: 10) {
                     statusPill(text: character.status, color: statusColor(for: character.status))
@@ -96,23 +221,15 @@ struct CharacterDetailView: View {
             }
             .padding(16)
         }
-        .frame(height: 280)
+        .frame(height: height)
         .clipShape(RoundedRectangle(cornerRadius: 18))
-        .padding(.horizontal)
+        .padding(.horizontal, 16)
         .padding(.top, 8)
+        .padding(.bottom, 8)
         .accessibilityElement(children: .combine)
     }
 
-    @ViewBuilder
-    private func headerImage(for character: RMCharacter) -> some View {
-        RemoteImageView(url: character.imageURL, retries: 2) {
-            placeholderHeader
-        }
-        .scaledToFill()
-        .clipped()
-    }
-
-    private var placeholderHeader: some View {
+    static var placeholderHeader: some View {
         ZStack {
             Rectangle().fill(.quaternary)
             Image(systemName: "person.crop.square")
@@ -121,29 +238,41 @@ struct CharacterDetailView: View {
         }
     }
 
-    // MARK: - Cards
-
-    private func overviewCard(for character: RMCharacter) -> some View {
+    static func overviewCard(for character: RMCharacter) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            labeledRow(title: "Status", value: character.status, leadingDotColor: statusColor(for: character.status))
+            labeledRow(
+                fieldID: "status",
+                titleKey: "detail.field.status",
+                value: character.status,
+                leadingDotColor: CharacterDetailUI.statusColor(for: character.status)
+            )
             Divider().opacity(0.5)
-            labeledRow(title: "Species", value: character.species)
+            labeledRow(fieldID: "species", titleKey: "detail.field.species", value: character.species)
             Divider().opacity(0.5)
-            labeledRow(title: "Gender", value: character.gender)
+            labeledRow(fieldID: "gender", titleKey: "detail.field.gender", value: character.gender)
         }
         .cardStyle()
     }
 
-    private func locationsCard(for character: RMCharacter) -> some View {
+    static func locationsCard(for character: RMCharacter) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            labeledRow(title: "Current location", value: character.locationName)
+            labeledRow(
+                fieldID: "currentlocation", // 👈 lo dejo EXACTO como tu test espera
+                titleKey: "detail.field.currentLocation",
+                value: character.locationName
+            )
             Divider().opacity(0.5)
-            labeledRow(title: "Origin", value: character.originName)
+            labeledRow(fieldID: "origin", titleKey: "detail.field.origin", value: character.originName)
         }
         .cardStyle()
     }
 
-    private func labeledRow(title: String, value: String, leadingDotColor: Color? = nil) -> some View {
+    static private func labeledRow(
+        fieldID: String,
+        titleKey: LocalizedStringKey,
+        value: String,
+        leadingDotColor: Color? = nil
+    ) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 10) {
             Group {
                 if let leadingDotColor {
@@ -158,7 +287,7 @@ struct CharacterDetailView: View {
             .frame(width: 14, alignment: .center)
             .accessibilityHidden(true)
 
-            Text(title)
+            Text(titleKey)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
@@ -172,13 +301,12 @@ struct CharacterDetailView: View {
                 .lineLimit(2)
                 .layoutPriority(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .accessibilityIdentifier("characterDetail.\(title.replacingOccurrences(of: " ", with: "").lowercased()).value")
+                // ID estable, independiente del idioma
+                .accessibilityIdentifier("characterDetail.\(fieldID).value")
         }
     }
 
-    // MARK: - Pills
-
-    private func pill(text: String) -> some View {
+    static func pill(text: String) -> some View {
         Text(text)
             .font(.caption)
             .fontWeight(.semibold)
@@ -189,13 +317,9 @@ struct CharacterDetailView: View {
             .clipShape(Capsule())
     }
 
-    private func statusPill(text: String, color: Color) -> some View {
+    static func statusPill(text: String, color: Color) -> some View {
         HStack(spacing: 6) {
-            Circle()
-                .fill(color)
-                .frame(width: 8, height: 8)
-                .accessibilityHidden(true)
-
+            Circle().fill(color).frame(width: 8, height: 8).accessibilityHidden(true)
             Text(text)
         }
         .font(.caption)
@@ -207,19 +331,16 @@ struct CharacterDetailView: View {
         .clipShape(Capsule())
     }
 
-    // MARK: - Status color
-
-    private func statusColor(for status: String) -> Color {
+    static func statusColor(for status: String) -> Color {
         switch status.lowercased() {
-        case "alive":
-            return .green
-        case "dead":
-            return .red
-        default:
-            return .gray
+        case "alive": return .green
+        case "dead": return .red
+        default: return .gray
         }
     }
 }
+
+// MARK: - Local card style (file-private)
 
 private extension View {
     func cardStyle() -> some View {
