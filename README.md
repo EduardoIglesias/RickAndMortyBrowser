@@ -109,13 +109,12 @@ This keeps the UI layer independent from networking and improves testability.
 This project currently uses **no third-party dependencies**.
 If external dependencies were needed (e.g. image caching / snapshot testing), they would be integrated using **Swift Package Manager (SPM)** as requested.
 
-## Troubleshooting
+## Future improvements
 
-### Launch screen image not visible
-iOS caches launch screen snapshots:
-- Delete the app from the simulator
-- Clean build folder (⇧⌘K)
-- Simulator: Device → Shut Down / Boot (or Erase All Content and Settings)
+- **Localization (i18n):** Extract all user-facing strings into a `Localizable.xcstrings` catalog and provide at least **EN/ES** translations.  
+  Notes:
+  - API-provided values (e.g., `alive/dead/unknown`) should be mapped to localized display strings.
+  - UI tests should rely on stable accessibility identifiers (not on visible text) to avoid breaking when language changes.
 
 ## API
 - Data source: https://rickandmortyapi.com/
