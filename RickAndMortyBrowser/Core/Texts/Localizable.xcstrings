@@ -1,0 +1,657 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%@ avatar" : {
+      "comment" : "A label describing the image of a character's avatar. The placeholder text is replaced with the character's name.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ avatar"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avatar de %@"
+          }
+        }
+      }
+    },
+    "characterRow.separator" : {
+      "comment" : "A period used to separate two related pieces of information.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "•"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "•"
+          }
+        }
+      }
+    },
+    "characters.empty.subtitle" : {
+      "comment" : "A subtitle displayed when there are no characters to display.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try another name… or blame the Council of Ricks."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prueba otro nombre… o échale la culpa al Consejo de Ricks."
+          }
+        }
+      }
+    },
+    "characters.empty.title" : {
+      "comment" : "The title of the empty state when there are no characters to display.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No results in this dimension 👽"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ningún resultado en esta dimensión 👽"
+          }
+        }
+      }
+    },
+    "characters.filtered.title" : {
+      "comment" : "The title of the section that appears when filtering characters.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filtered Characters"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Personajes filtrados"
+          }
+        }
+      }
+    },
+    "characters.load.error" : {
+      "comment" : "Error message displayed when characters cannot be loaded.",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to load characters."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudieron cargar los personajes."
+          }
+        }
+      }
+    },
+    "characters.search.prompt" : {
+      "comment" : "A prompt to guide the user on how to search for a character.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filter by name"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filtrar por nombre"
+          }
+        }
+      }
+    },
+    "characters.title" : {
+      "comment" : "The title of the \"Characters\" screen.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Characters"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Personajes"
+          }
+        }
+      }
+    },
+    "common.retry" : {
+      "comment" : "Generic retry button label.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retry"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reintentar"
+          }
+        }
+      }
+    },
+    "detail.field.currentLocation" : {
+      "comment" : "Key for the translation of the title of the field that shows the current location of a character.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Current location"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ubicación actual"
+          }
+        }
+      }
+    },
+    "detail.field.gender" : {
+      "comment" : "Key for the title of the gender field in the character detail view.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gender"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Género"
+          }
+        }
+      }
+    },
+    "detail.field.origin" : {
+      "comment" : "Key for the field title in the \"Locations\" section of the character detail view.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Origin"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Origen"
+          }
+        }
+      }
+    },
+    "detail.field.species" : {
+      "comment" : "Key for the title of the \"Species\" field in the character detail view.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Species"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Especie"
+          }
+        }
+      }
+    },
+    "detail.field.status" : {
+      "comment" : "Key for the translation of the field title \"Status\".",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Status"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estado"
+          }
+        }
+      }
+    },
+    "detail.locations.title" : {
+      "comment" : "Section title for locations in the character detail view.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Locations"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ubicaciones"
+          }
+        }
+      }
+    },
+    "detail.noData" : {
+      "comment" : "Placeholder text to display when there is no data to show.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No data."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin datos."
+          }
+        }
+      }
+    },
+    "detail.overview.title" : {
+      "comment" : "Heading displayed above the character's overview section.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Overview"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resumen"
+          }
+        }
+      }
+    },
+    "detail.title" : {
+      "comment" : "The title of the navigation bar at the top of the view.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Character"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Personaje"
+          }
+        }
+      }
+    },
+    "gender.female" : {
+      "comment" : "Localized string for the \"female\" gender value returned by the API.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Female"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Femenino"
+          }
+        }
+      }
+    },
+    "gender.genderless" : {
+      "comment" : "Localized string for the \"genderless\" gender value returned by the API.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Genderless"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin género"
+          }
+        }
+      }
+    },
+    "gender.male" : {
+      "comment" : "Localized string for the \"male\" gender value returned by the API.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Male"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Masculino"
+          }
+        }
+      }
+    },
+    "gender.unknown" : {
+      "comment" : "Localized string for the \"unknown\" gender value returned by the API.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desconocido"
+          }
+        }
+      }
+    },
+    "launch.subtitle" : {
+      "comment" : "A subtitle displayed when launch overlay appears.",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Browse characters across dimensions"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Explora personajes a través de dimensiones"
+          }
+        }
+      }
+    },
+    "launch.title" : {
+      "comment" : "A title displayed when launch overlay appears.",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Characters Browser"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buscador de Personajes"
+          }
+        }
+      }
+    },
+    "location.unknown" : {
+      "comment" : "Description of a character's location when it is unknown.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desconocida"
+          }
+        }
+      }
+    },
+    "origin.unknown" : {
+      "comment" : "Description of a character's origin when it is unknown.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desconocido"
+          }
+        }
+      }
+    },
+    "species.alien" : {
+      "comment" : "Localized string for the \"alien\" species value returned by the API.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alien"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alienígena"
+          }
+        }
+      }
+    },
+    "species.animal" : {
+      "comment" : "Localized string for the \"animal\" species value returned by the API.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Animal"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Animal"
+          }
+        }
+      }
+    },
+    "species.disease" : {
+      "comment" : "Localized string for the \"disease\" species value returned by the API.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disease"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enfermedad"
+          }
+        }
+      }
+    },
+    "species.human" : {
+      "comment" : "Localized string for the \"human\" species value returned by the API.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Human"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Humanidad"
+          }
+        }
+      }
+    },
+    "species.humanoid" : {
+      "comment" : "Localized string for the \"humanoid\" species value returned by the API.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Humanoid"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Humanoide"
+          }
+        }
+      }
+    },
+    "species.mythologicalCreature" : {
+      "comment" : "Localized string for the \"mythologicalCreature\" species value returned by the API.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mythological Creature"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Criatura Mitológica"
+          }
+        }
+      }
+    },
+    "species.poopybutthole" : {
+      "comment" : "Localized string for the \"poopybutthole\" species value returned by the API.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poopybutthole"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ojete Sucio"
+          }
+        }
+      }
+    },
+    "species.robot" : {
+      "comment" : "Localized string for the \"robot\" species value returned by the API.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Robot"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Robot"
+          }
+        }
+      }
+    },
+    "species.unknown" : {
+      "comment" : "Localized string for the \"unknown\" species value returned by the API.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desconocida"
+          }
+        }
+      }
+    },
+    "status.alive" : {
+      "comment" : "Localized string for the \"alive\" status of a character.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alive"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Con Vida"
+          }
+        }
+      }
+    },
+    "status.dead" : {
+      "comment" : "Localized string for the \"dead\" status of a character.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dead"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Murió"
+          }
+        }
+      }
+    },
+    "status.unknown" : {
+      "comment" : "Description of a character's status when it is unknown.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desconocido"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.1"
+}

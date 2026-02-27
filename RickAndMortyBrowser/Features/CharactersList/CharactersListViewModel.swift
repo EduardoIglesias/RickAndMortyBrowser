@@ -93,7 +93,7 @@ final class CharactersListViewModel: ObservableObject {
             nextPage = info.nextPage
             state.canLoadMore = (info.nextPage != nil)
         } catch {
-            state.errorMessage = "Failed to load characters."
+            state.errorMessage = "characters.load.error"
             nextPage = nil
             state.canLoadMore = false
         }
