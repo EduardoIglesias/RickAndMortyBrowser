@@ -28,8 +28,8 @@ struct CharacterDetailView: View {
                         CharacterDetailPortraitListView(character: character)
                     }
                 } else {
-                    Text("detail.noData")
-                        .foregroundStyle(.secondary)
+                    DetailNoDataCard()
+                        .transition(.opacity.combined(with: .scale(scale: 0.96)))
                 }
             }
             .onAppear { updateOrientation(using: proxy.size) }
@@ -352,5 +352,34 @@ private extension View {
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(.quaternary, lineWidth: 1)
             )
+    }
+}
+
+// MARK: - Empty state centrado y redondeado
+
+private struct DetailNoDataCard: View {
+    var body: some View {
+        VStack(spacing: 10) {
+            Image(systemName: "questionmark.circle")
+                .font(.title2)
+                .foregroundStyle(.secondary)
+
+            Text("detail.noData.title")
+                .font(.headline)
+
+            Text("detail.noData.subtitle")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .padding(18)
+        .frame(maxWidth: 340)
+        .background(.background.opacity(0.95))
+        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18)
+                .stroke(.quaternary, lineWidth: 1)
+        )
+        .padding(.horizontal, 24)
     }
 }

@@ -155,6 +155,23 @@
         }
       }
     },
+    "detail.noData.subtitle" : {
+      "comment" : "subtitle to display when there is no data to show.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We couldn’t find this character in this universe."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hemos encontrado este personaje en este universo."
+          }
+        }
+      }
+    },
     "detail.field.currentLocation" : {
       "comment" : "Key for the translation of the title of the field that shows the current location of a character.",
       "localizations" : {
@@ -257,8 +274,8 @@
         }
       }
     },
-    "detail.noData" : {
-      "comment" : "Placeholder text to display when there is no data to show.",
+    "detail.noData.title" : {
+      "comment" : "title to display when there is no data to show.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
