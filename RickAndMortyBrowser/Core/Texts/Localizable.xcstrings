@@ -178,7 +178,6 @@
     },
     "characters.load.error" : {
       "comment" : "Error message displayed when characters cannot be loaded.",
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -811,7 +810,6 @@
     },
     "launch.subtitle" : {
       "comment" : "A subtitle displayed when launch overlay appears.",
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -847,7 +845,6 @@
     },
     "launch.title" : {
       "comment" : "A title displayed when launch overlay appears.",
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
