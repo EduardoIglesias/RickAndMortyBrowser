@@ -50,6 +50,11 @@ final class CharactersListViewModel: ObservableObject {
         }
     }
 
+    /// Waits for the current debounced search task to complete. Test-only.
+    func waitForSearchTask() async {
+        await searchTask?.value
+    }
+
     func reload() async {
         nextPage = 1
         state.errorMessage = nil

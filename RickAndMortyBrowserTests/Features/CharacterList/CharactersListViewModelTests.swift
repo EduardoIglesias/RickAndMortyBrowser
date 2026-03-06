@@ -106,9 +106,7 @@ struct CharactersListViewModelTests {
         sut.query = "Morty"
         sut.onQueryChanged("Morty")
 
-        // Da un tick para que se ejecute la Task interna
-        await Task.yield()
-        await Task.yield()
+        await sut.waitForSearchTask()
 
         #expect(sut.state.characters.map(\.id) == Array(201...210))
         let calls = await repo.callCount()

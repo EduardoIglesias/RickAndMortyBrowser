@@ -178,6 +178,7 @@
     },
     "characters.load.error" : {
       "comment" : "Error message displayed when characters cannot be loaded.",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -312,41 +313,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Riprova"
-          }
-        }
-      }
-    },
-    "detail.noData.subtitle" : {
-      "comment" : "subtitle to display when there is no data to show.",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wir konnten diesen Charakter in diesem Universum nicht finden."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "We couldn't find this character in this universe."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No hemos encontrado este personaje en este universo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nous n'avons pas trouvé ce personnage dans cet univers."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Non siamo riusciti a trovare questo personaggio in questo universo."
           }
         }
       }
@@ -557,6 +523,41 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Posizioni"
+          }
+        }
+      }
+    },
+    "detail.noData.subtitle" : {
+      "comment" : "subtitle to display when there is no data to show.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wir konnten diesen Charakter in diesem Universum nicht finden."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We couldn't find this character in this universe."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hemos encontrado este personaje en este universo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nous n'avons pas trouvé ce personnage dans cet univers."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non siamo riusciti a trovare questo personaggio in questo universo."
           }
         }
       }
@@ -810,6 +811,7 @@
     },
     "launch.subtitle" : {
       "comment" : "A subtitle displayed when launch overlay appears.",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -845,6 +847,7 @@
     },
     "launch.title" : {
       "comment" : "A title displayed when launch overlay appears.",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
