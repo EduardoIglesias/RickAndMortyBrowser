@@ -1,0 +1,23 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "JY9-KH-o40.text" : {
+      "comment" : "Class = \"UILabel\"; text = \"Characters Browser\"; ObjectID = \"JY9-KH-o40\";",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Characters Browser"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buscador de Personajes"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.1"
+}

@@ -89,14 +89,24 @@ struct CharactersListViewModelTests {
     @Test @MainActor
     func onQueryChanged_debouncesAndTriggersReload() async {
         let repo = CharactersRepositoryListMock()
-        await repo.succeed(page: 1, filter: "Morty", items: Self.makeCharacters(ids: 201...210), nextPage: nil)
+        await repo.succeed(
+            page: 1,
+            filter: "Morty",
+            items: Self.makeCharacters(ids: 201...210),
+            nextPage: nil
+        )
 
-        let sut = CharactersListViewModel(fetchCharactersPageUseCase: FetchCharactersPageUseCase(repository: repo))
+        let useCase = FetchCharactersPageUseCase(repository: repo)
+        let sut = CharactersListViewModel(
+            fetchCharactersPageUseCase: useCase,
+            debounceDelay: .zero,
+            sleep: { _ in } // sin espera real
+        )
+
         sut.query = "Morty"
         sut.onQueryChanged("Morty")
 
-        // Debounce = 300ms en tu VM
-        try? await Task.sleep(for: .milliseconds(350))
+        await sut.waitForSearchTask()
 
         #expect(sut.state.characters.map(\.id) == Array(201...210))
         let calls = await repo.callCount()

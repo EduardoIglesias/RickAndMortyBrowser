@@ -63,13 +63,14 @@ struct CharactersListView: View {
         .scrollContentBackground(.hidden)
         .background(AppBackgroundView(opacity: 0.80))
 
-        .navigationTitle(isFilteredMode ? "" : "Characters")
+        // Localizado (usamos String(localized:) para evitar mezclar tipos en el ternario)
+        .navigationTitle(isFilteredMode ? "" : String(localized: "characters.title"))
         .navigationBarTitleDisplayMode(.large)
 
         .searchable(
             text: $viewModel.query,
             isPresented: $isSearchPresented,
-            prompt: "Filter by name"
+            prompt: Text("characters.search.prompt")
         )
         .onChange(of: viewModel.query) { _, _ in
             viewModel.onQueryChanged(viewModel.query)
@@ -78,15 +79,19 @@ struct CharactersListView: View {
         .safeAreaInset(edge: .top, spacing: 0) {
             if isFilteredMode {
                 HStack {
-                    Text("Filtered Characters")
+                    Text("characters.filtered.title")
                         .font(.headline)
                         .fontWeight(.semibold)
                     Spacer()
                 }
                 .padding(.horizontal)
                 .padding(.vertical, 10)
-                .background(.background)
-                .overlay(Divider(), alignment: .bottom)
+                .background(.ultraThinMaterial)
+                .opacity(0.85)
+                .overlay(
+                    Divider().opacity(0.6),
+                    alignment: .bottom
+                )
                 .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
@@ -137,27 +142,31 @@ private struct CharacterCardRow: View {
 
                 if !isLast {
                     Divider()
-                        .overlay(Color.primary.opacity(0.22)) // separador más visible
-                        .padding(.leading, 80)               // alinea con texto (ajusta si quieres)
+                        .overlay(Color.primary.opacity(0.22))
+                        .padding(.leading, 80)
                         .padding(.trailing, 12)
                 }
             }
-            .background(.background.opacity(0.95)) // card opaca (no transparente)
+            .background(.background.opacity(0.95))
             .clipShape(cardShape)
-            .padding(.horizontal, 16)              // deja ver el fondo por los lados
+            .padding(.horizontal, 16)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0)) // sin huecos entre filas
-        .listRowSeparator(.hidden)            // usamos divider interno
-        .listRowBackground(Color.clear)       // permite ver el fondo por los lados (card sigue opaca)
+        .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+        .listRowSeparator(.hidden)
+        .listRowBackground(Color.clear)
     }
 
     private var cardShape: some Shape {
-        UnevenRoundedRectangle(cornerRadii: .init(
-            topLeading: isFirst ? radius : 0,
-            bottomLeading: isLast ? radius : 0, bottomTrailing: isLast ? radius : 0, topTrailing: isFirst ? radius : 0
-        ))
+        UnevenRoundedRectangle(
+            cornerRadii: .init(
+                topLeading: isFirst ? radius : 0,
+                bottomLeading: isLast ? radius : 0,
+                bottomTrailing: isLast ? radius : 0,
+                topTrailing: isFirst ? radius : 0
+            )
+        )
     }
 }
 
@@ -170,10 +179,10 @@ private struct FilteredEmptyStateCard: View {
                 .font(.title2)
                 .foregroundStyle(.secondary)
 
-            Text("No results in this dimension 👽")
+            Text("characters.empty.title")
                 .font(.headline)
 
-            Text("Try another name… or blame the Council of Ricks.")
+            Text("characters.empty.subtitle")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)

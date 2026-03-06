@@ -9,7 +9,11 @@ import SwiftUI
 
 struct AppRootView: View {
     private let diContainer: AppDIContainer
+    private var isUITesting: Bool {
+        ProcessInfo.processInfo.arguments.contains("-ui-testing")
+    }
     @StateObject private var listViewModel: CharactersListViewModel
+
     @State private var path = NavigationPath()
 
     init(diContainer: AppDIContainer) {

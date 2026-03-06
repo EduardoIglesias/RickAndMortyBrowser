@@ -21,16 +21,16 @@ struct CharacterRowView: View {
 
                 HStack(spacing: 8) {
                     statusDot
-                    Text(character.status)
+                    Text(character.localizedStatus)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .accessibilityIdentifier("characterRow.status")
 
-                    Text("•")
+                    Text("characterRow.separator")
                         .font(.subheadline)
                         .foregroundStyle(.tertiary)
 
-                    Text(character.species)
+                    Text(character.localizedSpecies)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }

@@ -109,12 +109,10 @@ This keeps the UI layer independent from networking and improves testability.
 This project currently uses **no third-party dependencies**.
 If external dependencies were needed (e.g. image caching / snapshot testing), they would be integrated using **Swift Package Manager (SPM)** as requested.
 
-## Future improvements
+## Troubleshooting / Known limitations
 
-- **Localization (i18n):** Extract all user-facing strings into a `Localizable.xcstrings` catalog and provide at least **EN/ES** translations.  
-  Notes:
-  - API-provided values (e.g., `alive/dead/unknown`) should be mapped to localized display strings.
-  - UI tests should rely on stable accessibility identifiers (not on visible text) to avoid breaking when language changes.
+### Launch Screen localization
+iOS Launch Screens are intended to be static and **don’t reliably support localized text**. Even though Xcode can generate a `LaunchScreen.xcstrings` entry for `UILabel` content, the system may keep showing the base language string at runtime.
 
 ## API
 - Data source: https://rickandmortyapi.com/

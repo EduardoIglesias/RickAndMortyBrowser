@@ -28,8 +28,8 @@ struct CharacterDetailView: View {
                         CharacterDetailPortraitListView(character: character)
                     }
                 } else {
-                    Text("No data.")
-                        .foregroundStyle(.secondary)
+                    DetailNoDataCard()
+                        .transition(.opacity.combined(with: .scale(scale: 0.96)))
                 }
             }
             .onAppear { updateOrientation(using: proxy.size) }
@@ -37,7 +37,7 @@ struct CharacterDetailView: View {
                 updateOrientation(using: newSize)
             }
         }
-        .navigationTitle("Character")
+        .navigationTitle("detail.title")
         .navigationBarTitleDisplayMode(.inline)
     }
 
@@ -71,7 +71,7 @@ private struct CharacterDetailPortraitListView: View {
                         .listRowSeparator(.hidden)
                         .listRowBackground(Color.clear)
                 } header: {
-                    Text("Overview")
+                    Text("detail.overview.title")
                         .font(.headline)
                         .textCase(nil)
                 }
@@ -82,7 +82,7 @@ private struct CharacterDetailPortraitListView: View {
                         .listRowSeparator(.hidden)
                         .listRowBackground(Color.clear)
                 } header: {
-                    Text("Locations")
+                    Text("detail.locations.title")
                         .font(.headline)
                         .textCase(nil)
                 }
@@ -119,12 +119,12 @@ private struct CharacterDetailLandscapeSplitView: View {
                         leftColumn(width: leftWidth)
 
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("Overview")
+                            Text("detail.overview.title")
                                 .font(.headline)
 
                             CharacterDetailUI.overviewCard(for: character)
 
-                            Text("Locations")
+                            Text("detail.locations.title")
                                 .font(.headline)
 
                             CharacterDetailUI.locationsCard(for: character)
@@ -181,7 +181,7 @@ private struct CharacterDetailErrorView: View {
                 .font(.footnote)
                 .multilineTextAlignment(.center)
 
-            Button("Retry", action: onRetry)
+            Button("common.retry", action: onRetry)
                 .buttonStyle(.borderedProminent)
         }
         .padding()
@@ -214,9 +214,9 @@ enum CharacterDetailUI {
                     .accessibilityElement(children: .contain)
 
                 HStack(spacing: 10) {
-                    statusPill(text: character.status, color: statusColor(for: character.status))
-                    pill(text: character.species)
-                    pill(text: character.gender)
+                    statusPill(text: character.localizedStatus, color: statusColor(for: character.status))
+                    pill(text: character.localizedSpecies)
+                    pill(text: character.localizedGender)
                 }
             }
             .padding(16)
@@ -243,13 +243,13 @@ enum CharacterDetailUI {
             labeledRow(
                 fieldID: "status",
                 titleKey: "detail.field.status",
-                value: character.status,
+                value: character.localizedStatus,
                 leadingDotColor: CharacterDetailUI.statusColor(for: character.status)
             )
             Divider().opacity(0.5)
-            labeledRow(fieldID: "species", titleKey: "detail.field.species", value: character.species)
+            labeledRow(fieldID: "species", titleKey: "detail.field.species", value: character.localizedSpecies)
             Divider().opacity(0.5)
-            labeledRow(fieldID: "gender", titleKey: "detail.field.gender", value: character.gender)
+            labeledRow(fieldID: "gender", titleKey: "detail.field.gender", value: character.localizedGender)
         }
         .cardStyle()
     }
@@ -257,12 +257,12 @@ enum CharacterDetailUI {
     static func locationsCard(for character: RMCharacter) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             labeledRow(
-                fieldID: "currentlocation", // 👈 lo dejo EXACTO como tu test espera
+                fieldID: "currentlocation",
                 titleKey: "detail.field.currentLocation",
-                value: character.locationName
+                value: character.localizedLocationName
             )
             Divider().opacity(0.5)
-            labeledRow(fieldID: "origin", titleKey: "detail.field.origin", value: character.originName)
+            labeledRow(fieldID: "origin", titleKey: "detail.field.origin", value: character.localizedOriginName)
         }
         .cardStyle()
     }
@@ -352,5 +352,34 @@ private extension View {
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(.quaternary, lineWidth: 1)
             )
+    }
+}
+
+// MARK: - Empty state centrado y redondeado
+
+private struct DetailNoDataCard: View {
+    var body: some View {
+        VStack(spacing: 10) {
+            Image(systemName: "questionmark.circle")
+                .font(.title2)
+                .foregroundStyle(.secondary)
+
+            Text("detail.noData.title")
+                .font(.headline)
+
+            Text("detail.noData.subtitle")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .padding(18)
+        .frame(maxWidth: 340)
+        .background(.background.opacity(0.95))
+        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18)
+                .stroke(.quaternary, lineWidth: 1)
+        )
+        .padding(.horizontal, 24)
     }
 }
