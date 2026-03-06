@@ -104,6 +104,16 @@ This keeps the UI layer independent from networking and improves testability.
 - Simple animations for state transitions and detail appearance
 - Launch Screen included (`LaunchScreen.storyboard`)
 
+## Localization
+
+The app is fully localized using Xcode String Catalogs (`Localizable.xcstrings`). Supported languages:
+
+- English (base)
+- Spanish
+- French
+- German
+- Italian
+
 ## Dependencies
 
 This project currently uses **no third-party dependencies**.
