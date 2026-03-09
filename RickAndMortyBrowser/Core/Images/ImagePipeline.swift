@@ -13,7 +13,7 @@ actor ImagePipeline {
     private var inFlight: [URL: Task<UIImage, Error>] = [:]
 
     func image(for url: URL, retries: Int = 2) async throws -> UIImage {
-        if let cached = ImageCache.shared.get(url) { return cached }
+        if let cached = await ImageCache.shared.get(url) { return cached }
         if let task = inFlight[url] { return try await task.value }
 
         let task = Task.detached(priority: .utility) { [url] () throws -> UIImage in
@@ -25,7 +25,7 @@ actor ImagePipeline {
                           let image = UIImage(data: data) else {
                         throw URLError(.badServerResponse)
                     }
-                    ImageCache.shared.set(image, for: url)
+                    await ImageCache.shared.set(image, for: url)
                     return image
                 } catch {
                     if remaining <= 0 { throw error }
